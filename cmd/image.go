@@ -14,12 +14,12 @@ var imageCmd = &cobra.Command{
 	Short: "Build and manage virtual machine images.",
 	Long:  `Build and manage virtual machine images for AWS, VirtualBox or Docker.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("image called")
+		fmt.Println("Missing subcommand")
 	},
 }
 
 func init() {
-	rootcmd.AddCommand(imageCmd)
+	rootCmd.AddCommand(imageCmd)
 
 	// Here you will define your flags and configuration settings.
 

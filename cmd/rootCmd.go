@@ -12,7 +12,7 @@ import (
 var cfgFile string
 
 // cmd represents the base command when called without any subcommands
-var rootcmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:   "carpenter",
 	Short: "CLI to build machine images and infrastrcuture.",
 	Long: `CLI abstrasction for common image and infrastrcuture configuration
@@ -25,7 +25,7 @@ infrastructure either locally or remote (AWS) via common commands.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the cmd.
 func Execute() {
-	if err := rootcmd.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -37,11 +37,11 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootcmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.carpenter.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.carpenter.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootcmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -65,7 +65,5 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+	viper.ReadInConfig()
 }
