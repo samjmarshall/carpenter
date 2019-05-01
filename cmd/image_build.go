@@ -7,9 +7,10 @@ import (
 
 // imageBuildCmd represents the build command
 var imageBuildCmd = &cobra.Command{
-	Use:   "build",
+	Use:   "build [image name]",
 	Short: "Build image",
 	Long:  `Build and configure a virtual machine image.`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if builder == "" {
