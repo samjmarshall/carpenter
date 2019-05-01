@@ -10,14 +10,10 @@ import (
 var completionCmd = &cobra.Command{
 	Use:   "completion",
 	Short: "Generates bash completion scripts",
-	Long: `To load completion run
+	Long: `To configure your bash shell to load completions for each session run
 
-. <(carpenter completion)
+carpenter completion >$(brew --prefix)/etc/bash_completion.d/carpenter
 
-To configure your bash shell to load completions for each session add to your bashrc
-
-# ~/.bashrc or ~/.bash_profile
-. <(carpenter completion)
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		rootCmd.GenBashCompletion(os.Stdout)
