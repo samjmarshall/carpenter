@@ -1,0 +1,5 @@
+# Go
+go.sum
+
+# Vagrant
+.vagrant
