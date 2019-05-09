@@ -11,11 +11,11 @@ var imageCleanCmd = &cobra.Command{
 	Short: "Clean up image build resources",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if builder == "" {
-			builder = viper.GetString("builder")
+		if driver == "" {
+			driver = viper.GetStringMapString("driver")["name"]
 		}
 
-		switch builder {
+		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
 			build.Clean()
