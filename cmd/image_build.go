@@ -20,7 +20,7 @@ var imageBuildCmd = &cobra.Command{
 		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
-			build.Init(args[0], viper.GetStringMapString("vagrant")["provider"])
+			build.Init(args[0])
 			build.Run()
 		}
 	},

@@ -19,9 +19,8 @@ func (v *Vagrant) Clean() {
 	shell("vagrant destroy -f")
 }
 
-func (v *Vagrant) Init(imageName string, provider string) {
+func (v *Vagrant) Init(imageName string) {
 	os.Setenv("VAGRANT_IMAGE_NAME", imageName)
-	os.Setenv("VAGRANT_PROVIDER", provider)
 
 	out, err := exec.Command("vagrant", "status", imageName).Output()
 
