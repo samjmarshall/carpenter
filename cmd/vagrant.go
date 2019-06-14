@@ -8,8 +8,7 @@ import (
 )
 
 type Vagrant struct {
-	imageName string
-	runArg    string
+	runArg string
 }
 
 func (v *Vagrant) Run() {
@@ -20,10 +19,11 @@ func (v *Vagrant) Clean() {
 	shell("vagrant destroy -f")
 }
 
-func (v *Vagrant) Init(imageName string) {
-	v.imageName = imageName
+func (v *Vagrant) Init(imageName string, provider string) {
+	os.Setenv("VAGRANT_IMAGE_NAME", imageName)
+	os.Setenv("VAGRANT_PROVIDER", provider)
 
-	out, err := exec.Command("vagrant", "status", v.imageName).Output()
+	out, err := exec.Command("vagrant", "status", imageName).Output()
 
 	if err != nil || strings.Contains(string(out), "not created (virtualbox)") {
 		v.runArg = "up"

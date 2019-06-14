@@ -25,7 +25,7 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	imageCmd.PersistentFlags().StringVarP(&driver, "driver", "b", "", "Image driver [vagrant|packer|docker]")
+	imageCmd.PersistentFlags().StringVarP(&driver, "driver", "d", "", "Image driver [vagrant|packer|docker]")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

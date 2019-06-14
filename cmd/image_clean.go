@@ -9,15 +9,17 @@ import (
 var imageCleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean up image build resources",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if driver == "" {
-			driver = viper.GetStringMapString("driver")["name"]
+			driver = viper.GetStringMapString("driver")["default"]
 		}
 
 		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
+			build.Init(args[0], viper.GetStringMapString("vagrant")["provider"])
 			build.Clean()
 		}
 	},

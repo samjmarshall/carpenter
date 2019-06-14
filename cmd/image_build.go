@@ -14,13 +14,13 @@ var imageBuildCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if driver == "" {
-			driver = viper.GetStringMapString("driver")["name"]
+			driver = viper.GetStringMapString("driver")["default"]
 		}
 
 		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
-			build.Init(args[0])
+			build.Init(args[0], viper.GetStringMapString("vagrant")["provider"])
 			build.Run()
 		}
 	},
