@@ -21,6 +21,14 @@ func (p *Packer) Clean() {
 func (p *Packer) Init(imageName string) {
 	os.Setenv("PACKER_IMAGE_NAME", imageName)
 
+	if os.Getenv("PACKER_AWS_REGION") == "" {
+		if os.Getenv("AWS_REGION") != "" {
+			os.Setenv("PACKER_AWS_REGION", os.Getenv("AWS_REGION"))
+		} else {
+			os.Setenv("PACKER_AWS_REGION", viper.GetStringMapString("packer")["aws_region"])
+		}
+	}
+
 	if os.Getenv("PACKER_AWS_ACCESS_KEY_ID") == "" {
 		os.Setenv("PACKER_AWS_ACCESS_KEY_ID", os.Getenv("AWS_ACCESS_KEY_ID"))
 		os.Setenv("PACKER_AWS_SECRET_ACCESS_KEY", os.Getenv("AWS_SECRET_ACCESS_KEY"))
