@@ -22,6 +22,10 @@ var imageBuildCmd = &cobra.Command{
 			build := new(Vagrant)
 			build.Init(args[0])
 			build.Run()
+		case "packer":
+			build := new(Packer)
+			build.Init(args[0])
+			build.Run()
 		}
 	},
 }
