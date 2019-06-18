@@ -13,8 +13,8 @@ var cfgFile string
 // cmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "carpenter",
-	Short: "CLI to build machine images and infrastrcuture.",
-	Long: `CLI abstrasction for common image and infrastrcuture configuration
+	Short: "CLI to build machine images and infrastructure.",
+	Long: `CLI abstraction for common image and infrastructure configuration
 management and automation tool sets.
 
 Carpenter allows you to build and configure you images and
@@ -51,6 +51,7 @@ func initConfig() {
 	} else {
 		// Find working directory.
 		dir, err := os.Getwd()
+
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

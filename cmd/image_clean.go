@@ -13,13 +13,19 @@ var imageCleanCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if driver == "" {
-			driver = viper.GetStringMapString("driver")["default"]
+			driver = viper.GetString("driver.default")
 		}
+
+		imageName = args[0]
 
 		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
-			build.Init(args[0])
+			build.Configure()
+			build.Clean()
+		case "packer":
+			build := new(Packer)
+			build.Configure()
 			build.Clean()
 		}
 	},

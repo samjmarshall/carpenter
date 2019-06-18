@@ -7,6 +7,7 @@ import (
 )
 
 var driver string
+var imageName string
 
 // imageCmd represents the image command
 var imageCmd = &cobra.Command{
