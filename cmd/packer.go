@@ -79,7 +79,7 @@ func (p *Packer) Run() {
 		"\nsubnet_id":         os.Getenv("PACKER_SUBNET_ID"),
 		"\nvolume_size":       os.Getenv("PACKER_VOLUME_SIZE"),
 		"\nvpc_id":            os.Getenv("PACKER_VPC_ID"),
-	}).Info("Packer build properties =>")
+	}).Info("Packer build properties")
 
 	shell("packer build packer.json")
 }
