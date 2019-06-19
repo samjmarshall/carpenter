@@ -8,17 +8,14 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // Vagrant build properties
 type Vagrant struct {
-	RunArg   string
-	Template string
-}
-
-// VagrantConfig - Vagrantfile template data
-type VagrantConfig struct {
+	RunArg    string
 	ImageName string
+	Memory    int
 }
 
 // Configure Vagrant build properties
@@ -34,13 +31,34 @@ func (v *Vagrant) Configure() {
 		os.Exit(1)
 	}
 
-	v.Template = `# -*- mode: ruby -*-
+	v.ImageName = imageName
+
+	if viper.IsSet("driver.vagrant.memory") {
+		v.Memory = viper.GetInt("driver.vagrant.memory")
+	} else {
+		v.Memory = 1024
+	}
+}
+
+// Run Vagrant image build
+func (v *Vagrant) Run() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	vagrantfilePath := fmt.Sprintf("%s/Vagrantfile", cwd)
+
+	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
+		t := template.New("Vagrantfile")
+		t = template.Must(t.Parse(`# -*- mode: ruby -*-
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
 
-    config.vm.box      = "ubuntu/xenial64"
-    config.vm.hostname = "{{.ImageName}}"
+	config.vm.box      = "ubuntu/xenial64"
+	config.vm.hostname = "{{.ImageName}}"
 
 	config.vm.define "{{.ImageName}}"
 
@@ -49,7 +67,7 @@ Vagrant.configure("2") do |config|
 
 	config.vm.provider "virtualbox" do |vb|
 		vb.name   = "{{.ImageName}}"
-		vb.memory = 2048
+		vb.memory = {{.Memory}}
 
 		vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
 	end
@@ -75,22 +93,7 @@ Vagrant.configure("2") do |config|
 		}
 	end
 end
-`
-}
-
-// Run Vagrant image build
-func (v *Vagrant) Run() {
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	vagrantfilePath := fmt.Sprintf("%s/Vagrantfile", cwd)
-
-	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
-		t := template.New("Vagrantfile")
-		t = template.Must(t.Parse(v.Template))
+`))
 
 		f, err := os.Create(vagrantfilePath)
 		if err != nil {
@@ -100,7 +103,7 @@ func (v *Vagrant) Run() {
 			return
 		}
 
-		t.Execute(f, VagrantConfig{ImageName: imageName})
+		t.Execute(f, v)
 		f.Close()
 	}
 
