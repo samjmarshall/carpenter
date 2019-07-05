@@ -71,7 +71,14 @@ Vagrant.configure("2") do |config|
 		vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
 	end
 
-	config.vm.provision "shell", path: "bin/bootstrap.sh"
+	config.vm.provision "shell", inline: <<-SCRIPT
+if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
+		wget https://apt.puppetlabs.com/puppet6-release-xenial.deb
+		sudo dpkg -i puppet6-release-xenial.deb
+		sudo apt-get update
+		sudo apt-get install puppet-agent
+fi
+SCRIPT
 
 	config.vm.provision "puppet" do |puppet|
 		puppet.manifests_path    = "puppet/manifests"
@@ -84,6 +91,11 @@ Vagrant.configure("2") do |config|
 			"image" => "{{.ImageName}}"
 		}
 	end
+
+	config.vm.provision "shell", inline: <<-SCRIPT
+which inspec >/dev/null && curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
+sudo inspec exec /tmp/test/image/{{.ImageName}} --chef-license=accept-silent
+SCRIPT
 end
 `))
 
@@ -99,22 +111,15 @@ end
 		f.Close()
 	}
 
-	shell(fmt.Sprintf("vagrant %s", v.RunArg))
+	shell("vagrant", v.RunArg)
 }
 
 // Destroy up build artifacts
 func (v *Vagrant) Destroy() {
-	shell(fmt.Sprintf("vagrant destroy -f %s", v.ImageName))
+	shell("vagrant", "destroy", "-f", v.ImageName)
 }
 
 // Test image configuration
 func (v *Vagrant) Test() {
-	user := "vagrant"
-	host := "127.0.0.1"
-	port := 2222
-	keyFile := fmt.Sprintf(".vagrant/machines/%s/virtualbox/private_key", v.ImageName)
-
-	fmt.Print("InSpec version: ")
-	shell("inspec version")
-	shell(fmt.Sprintf("inspec exec test/image/%s --target ssh://%s@%s:%d --key-files %s --sudo --chef-license=accept-silent", v.ImageName, user, host, port, keyFile))
+	shell("vagrant", "ssh", "-c", fmt.Sprintf("sudo inspec exec /tmp/test/image/%s --chef-license=accept-silent", v.ImageName))
 }

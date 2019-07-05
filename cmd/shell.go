@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 )
 
-func shell(command string) {
-	cmdArgs := strings.Fields(command)
-	cmd := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
+func shell(command ...string) {
+	cmd := exec.Command(command[0], command[1:len(command)]...)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

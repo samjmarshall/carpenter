@@ -81,7 +81,7 @@ func (p *Packer) Run() {
 		"\nvpc_id":            os.Getenv("PACKER_VPC_ID"),
 	}).Info("Packer build properties")
 
-	shell("packer build packer.json")
+	shell("packer", "build", "packer.json")
 }
 
 // Destroy up build artifacts
