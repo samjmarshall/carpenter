@@ -93,10 +93,10 @@ SCRIPT
 	end
 
 	config.vm.provision "shell", inline: <<-SCRIPT
-which inspec >/dev/null && curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
-sudo inspec exec /tmp/test/image/{{.ImageName}} --chef-license=accept-silent
+if ! which inspec >/dev/null; then
+  curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
+fi
 SCRIPT
-end
 `))
 
 		f, err := os.Create(vagrantfilePath)
