@@ -114,3 +114,8 @@ end
 func (v *Vagrant) Destroy() {
 	shell("vagrant destroy -f")
 }
+
+// Test image configuration
+func (v *Vagrant) Test() {
+	shell(fmt.Sprintf("inspec exec test/image/%s --target ssh://vagrant@127.0.0.1:2222 --key-files .vagrant/machines/%s/virtualbox/private_key --sudo --chef-license=accept-silent", v.ImageName, v.ImageName))
+}

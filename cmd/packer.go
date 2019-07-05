@@ -135,3 +135,8 @@ func (p *Packer) Destroy() {
 		log.Error(fmt.Sprintf("Could not find target AMI => %s", p.amiName))
 	}
 }
+
+// Test image configuration
+func (p *Packer) Test() {
+	// TODO
+}
