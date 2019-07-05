@@ -63,7 +63,6 @@ Vagrant.configure("2") do |config|
 	config.vm.define "{{.ImageName}}"
 
 	config.vm.synced_folder "puppet/data", "/tmp/vagrant-puppet/data"
-	config.vm.synced_folder "test", "/tmp/test"
 
 	config.vm.provider "virtualbox" do |vb|
 		vb.name   = "{{.ImageName}}"
@@ -83,13 +82,6 @@ Vagrant.configure("2") do |config|
 	
 		puppet.facter = {
 			"image" => "{{.ImageName}}"
-		}
-	end
-
-	config.vm.provision "shell" do |s|
-		s.path = "bin/test.sh"
-		s.env = {
-			"IMAGE_NAME" => "{{.ImageName}}"
 		}
 	end
 end
@@ -122,5 +114,7 @@ func (v *Vagrant) Test() {
 	port := 2222
 	keyFile := fmt.Sprintf(".vagrant/machines/%s/virtualbox/private_key", v.ImageName)
 
+	fmt.Print("InSpec version: ")
+	shell("inspec version")
 	shell(fmt.Sprintf("inspec exec test/image/%s --target ssh://%s@%s:%d --key-files %s --sudo --chef-license=accept-silent", v.ImageName, user, host, port, keyFile))
 }
