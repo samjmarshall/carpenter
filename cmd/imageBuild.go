@@ -24,6 +24,7 @@ var imageBuildCmd = &cobra.Command{
 			build := new(Vagrant)
 			build.Configure()
 			build.Run()
+			build.Test()
 		case "packer":
 			build := new(Packer)
 			build.Configure()

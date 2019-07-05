@@ -20,6 +20,11 @@ type Vagrant struct {
 
 // Configure Vagrant build properties
 func (v *Vagrant) Configure() {
+	v.ImageName = imageName
+}
+
+// Run Vagrant image build
+func (v *Vagrant) Run() {
 	out, err := exec.Command("vagrant", "status", imageName).Output()
 
 	if err != nil || strings.Contains(string(out), "not created (virtualbox)") {
@@ -31,17 +36,12 @@ func (v *Vagrant) Configure() {
 		os.Exit(1)
 	}
 
-	v.ImageName = imageName
-
-	if viper.IsSet("driver.vagrant.memory") {
+	if v.RunArg == "up" && viper.IsSet("driver.vagrant.memory") {
 		v.Memory = viper.GetInt("driver.vagrant.memory")
 	} else {
 		v.Memory = 1024
 	}
-}
 
-// Run Vagrant image build
-func (v *Vagrant) Run() {
 	cwd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -112,10 +112,15 @@ end
 
 // Destroy up build artifacts
 func (v *Vagrant) Destroy() {
-	shell("vagrant destroy -f")
+	shell(fmt.Sprintf("vagrant destroy -f %s", v.ImageName))
 }
 
 // Test image configuration
 func (v *Vagrant) Test() {
-	shell(fmt.Sprintf("inspec exec test/image/%s --target ssh://vagrant@127.0.0.1:2222 --key-files .vagrant/machines/%s/virtualbox/private_key --sudo --chef-license=accept-silent", v.ImageName, v.ImageName))
+	user := "vagrant"
+	host := "127.0.0.1"
+	port := 2222
+	keyFile := fmt.Sprintf(".vagrant/machines/%s/virtualbox/private_key", v.ImageName)
+
+	shell(fmt.Sprintf("inspec exec test/image/%s --target ssh://%s@%s:%d --key-files %s --sudo --chef-license=accept-silent", v.ImageName, user, host, port, keyFile))
 }
