@@ -110,7 +110,7 @@ end
 	shell(fmt.Sprintf("vagrant %s", v.RunArg))
 }
 
-// Clean up build artifacts
-func (v *Vagrant) Clean() {
+// Destroy up build artifacts
+func (v *Vagrant) Destroy() {
 	shell("vagrant destroy -f")
 }

@@ -84,8 +84,8 @@ func (p *Packer) Run() {
 	shell("packer build packer.json")
 }
 
-// Clean up build artifacts
-func (p *Packer) Clean() {
+// Destroy up build artifacts
+func (p *Packer) Destroy() {
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(os.Getenv("PACKER_AWS_REGION"))}))
 
 	describeResult, err := svc.DescribeImages(&ec2.DescribeImagesInput{

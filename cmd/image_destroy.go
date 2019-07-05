@@ -5,10 +5,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-// imageCleanCmd represents the build command
-var imageCleanCmd = &cobra.Command{
-	Use:   "clean",
-	Short: "Clean up image build resources",
+// imageDestroyCmd represents the build command
+var imageDestroyCmd = &cobra.Command{
+	Use:   "destroy",
+	Short: "Destroy up image build resources",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -22,25 +22,25 @@ var imageCleanCmd = &cobra.Command{
 		case "vagrant":
 			build := new(Vagrant)
 			build.Configure()
-			build.Clean()
+			build.Destroy()
 		case "packer":
 			build := new(Packer)
 			build.Configure()
-			build.Clean()
+			build.Destroy()
 		}
 	},
 }
 
 func init() {
-	imageCmd.AddCommand(imageCleanCmd)
+	imageCmd.AddCommand(imageDestroyCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// imageCleanCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// imageDestroyCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// imageCleanCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// imageDestroyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
