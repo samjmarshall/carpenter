@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"html/template"
 	"os"
 	"os/exec"
 	"strings"
+	"text/template"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -97,6 +97,8 @@ if ! which inspec >/dev/null; then
   curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
 fi
 SCRIPT
+
+end
 `))
 
 		f, err := os.Create(vagrantfilePath)
