@@ -19,7 +19,7 @@ type Packer struct {
 
 // Configure Packer build properties
 func (p *Packer) Configure() {
-	p.amiName = fmt.Sprintf("%s-build%s", imageName, os.Getenv("PACKER_BUILD_NUMBER"))
+	p.amiName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PACKER_BUILD_NUMBER"))
 
 	os.Setenv("PACKER_IMAGE_NAME", imageName)
 	os.Setenv("PACKER_AMI_NAME", p.amiName)
