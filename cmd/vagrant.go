@@ -63,6 +63,7 @@ Vagrant.configure("2") do |config|
 	config.vm.define "{{.ImageName}}"
 
 	config.vm.synced_folder "puppet/data", "/tmp/vagrant-puppet/data"
+	config.vm.synced_folder "test", "/tmp/test"
 
 	config.vm.provider "virtualbox" do |vb|
 		vb.name   = "{{.ImageName}}"
