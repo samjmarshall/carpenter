@@ -19,7 +19,11 @@ type Packer struct {
 
 // Configure Packer build properties
 func (p *Packer) Configure() {
-	p.amiName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PACKER_BUILD_VERSION"))
+	if os.Getenv("PACKER_BUILD_VERSION") == "" {
+		p.amiName = imageName
+	} else {
+		p.amiName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PACKER_BUILD_VERSION"))
+	}
 
 	os.Setenv("PACKER_IMAGE_NAME", imageName)
 	os.Setenv("PACKER_AMI_NAME", p.amiName)
