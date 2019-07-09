@@ -13,7 +13,7 @@ import (
 
 // Vagrant build properties
 type Vagrant struct {
-	RunArg    string
+	Running   bool
 	ImageName string
 	Memory    int
 }
@@ -21,22 +21,22 @@ type Vagrant struct {
 // Configure Vagrant build properties
 func (v *Vagrant) Configure() {
 	v.ImageName = imageName
-}
 
-// Run Vagrant image build
-func (v *Vagrant) Run() {
 	out, err := exec.Command("vagrant", "status", imageName).Output()
 
 	if err != nil || strings.Contains(string(out), "not created (virtualbox)") {
-		v.RunArg = "up"
+		v.Running = false
 	} else if strings.Contains(string(out), "running (virtualbox)") {
-		v.RunArg = "provision"
+		v.Running = true
 	} else {
 		fmt.Println("Unknown Vagrant machine state")
 		os.Exit(1)
 	}
+}
 
-	if v.RunArg == "up" && viper.IsSet("driver.vagrant.memory") {
+// Run Vagrant image build
+func (v *Vagrant) Run() {
+	if viper.IsSet("driver.vagrant.memory") {
 		v.Memory = viper.GetInt("driver.vagrant.memory")
 	} else {
 		v.Memory = 1024
@@ -114,12 +114,21 @@ end
 		f.Close()
 	}
 
-	shell("vagrant", v.RunArg)
+	if v.Running {
+		shell("vagrant", "provision")
+	} else {
+		shell("vagrant", "up")
+	}
 }
 
 // Destroy up build artifacts
 func (v *Vagrant) Destroy() {
-	shell("vagrant", "destroy", "-f", v.ImageName)
+	if v.Running {
+		shell("vagrant", "destroy", "-f", v.ImageName)
+	}
+
+	os.RemoveAll(".vagrant/")
+	os.Remove("Vagrantfile")
 }
 
 // Test image configuration
