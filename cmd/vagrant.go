@@ -16,6 +16,7 @@ type Vagrant struct {
 	Running   bool
 	ImageName string
 	Memory    int
+	Cwd       string
 }
 
 // Configure Vagrant build properties
@@ -32,6 +33,12 @@ func (v *Vagrant) Configure() {
 		fmt.Println("Unknown Vagrant machine state")
 		os.Exit(1)
 	}
+
+	v.Cwd, err = os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 // Run Vagrant image build
@@ -42,13 +49,7 @@ func (v *Vagrant) Run() {
 		v.Memory = 1024
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	vagrantfilePath := fmt.Sprintf("%s/Vagrantfile", cwd)
+	vagrantfilePath := fmt.Sprintf("%s/Vagrantfile", v.Cwd)
 
 	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
 		t := template.New("Vagrantfile")
@@ -133,5 +134,6 @@ func (v *Vagrant) Destroy() {
 
 // Test image configuration
 func (v *Vagrant) Test() {
+	// Run InSpec
 	shell("vagrant", "ssh", "-c", fmt.Sprintf("sudo inspec exec /tmp/test/image/%s --chef-license=accept-silent", v.ImageName))
 }
