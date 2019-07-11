@@ -13,15 +13,22 @@ import (
 
 // Vagrant build properties
 type Vagrant struct {
-	Running   bool
-	ImageName string
-	Memory    int
-	Cwd       string
+	Running     bool
+	ImageName   string
+	Provisioner string
+	Tester      string
+	Box         string
+	Memory      int
+	Cwd         string
 }
 
 // Configure Vagrant build properties
 func (v *Vagrant) Configure() {
 	v.ImageName = imageName
+
+	if viper.IsSet("tester") {
+		v.Tester = viper.GetString("tester")
+	}
 
 	out, err := exec.Command("vagrant", "status", imageName).Output()
 
@@ -49,6 +56,17 @@ func (v *Vagrant) Run() {
 		v.Memory = 1024
 	}
 
+	if viper.IsSet("driver.vagrant.box") {
+		v.Box = viper.GetString("driver.vagrant.box")
+	} else {
+		log.Error("Vagrant driver 'box' is not set")
+		return
+	}
+
+	if viper.IsSet("provisioner") {
+		v.Provisioner = viper.GetString("provisioner")
+	}
+
 	vagrantfilePath := fmt.Sprintf("%s/Vagrantfile", v.Cwd)
 
 	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
@@ -58,12 +76,12 @@ func (v *Vagrant) Run() {
 
 Vagrant.configure("2") do |config|
 
-	config.vm.box      = "ubuntu/xenial64"
+	config.vm.box      = "{{.Box}}"
 	config.vm.hostname = "{{.ImageName}}"
 
 	config.vm.define "{{.ImageName}}"
 
-	config.vm.synced_folder "puppet/data", "/tmp/vagrant-puppet/data"
+	{{if eq .Provisioner "puppet"}}config.vm.synced_folder "puppet/data", "/tmp/vagrant-puppet/data"{{end}}
 	config.vm.synced_folder "test", "/tmp/test"
 
 	config.vm.provider "virtualbox" do |vb|
@@ -73,7 +91,7 @@ Vagrant.configure("2") do |config|
 		vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
 	end
 
-	config.vm.provision "shell", inline: <<-SCRIPT
+	{{if eq .Provisioner "puppet"}}config.vm.provision "shell", inline: <<-SCRIPT
 if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
 		wget https://apt.puppetlabs.com/puppet6-release-xenial.deb
 		sudo dpkg -i puppet6-release-xenial.deb
@@ -90,15 +108,16 @@ SCRIPT
 		puppet.options           = "--verbose"
 	
 		puppet.facter = {
-			"image" => "{{.ImageName}}"
+			"image_type" => "ami",
+			"image"      => "{{.ImageName}}",
 		}
-	end
+	end{{end}}
 
-	config.vm.provision "shell", inline: <<-SCRIPT
+	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: <<-SCRIPT
 if ! which inspec >/dev/null; then
   curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
 fi
-SCRIPT
+SCRIPT{{end}}
 
 end
 `))
@@ -135,5 +154,10 @@ func (v *Vagrant) Destroy() {
 // Test image configuration
 func (v *Vagrant) Test() {
 	// Run InSpec
-	shell("vagrant", "ssh", "-c", fmt.Sprintf("sudo inspec exec /tmp/test/image/%s --chef-license=accept-silent", v.ImageName))
+	switch v.Tester {
+	case "inspec":
+		shell("vagrant", "ssh", "-c", fmt.Sprintf(`echo "Inspec version: $(sudo inspec version)";
+			sudo inspec vendor /tmp/test/image/%s --overwrite --chef-license=accept-silent;
+			sudo inspec exec /tmp/test/image/%s`, v.ImageName, v.ImageName))
+	}
 }
