@@ -113,11 +113,9 @@ SCRIPT
 		}
 	end{{end}}
 
-	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: <<-SCRIPT
-if ! which inspec >/dev/null; then
-  curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec
-fi
-SCRIPT{{end}}
+	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: 'curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec -s once'{{end}}
+
+	config.vm.provision "shell", inline: 'sudo apt-get -y upgrade'
 
 end
 `))
