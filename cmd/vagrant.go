@@ -13,18 +13,20 @@ import (
 
 // Vagrant build properties
 type Vagrant struct {
-	Running     bool
-	ImageName   string
-	Provisioner string
-	Tester      string
+	AwsRegion   string
 	Box         string
-	Memory      int
 	Cwd         string
+	ImageName   string
+	Memory      int
+	Provisioner string
+	Running     bool
+	Tester      string
 }
 
 // Configure Vagrant build properties
 func (v *Vagrant) Configure() {
 	v.ImageName = imageName
+	v.AwsRegion = os.Getenv("AWS_REGION")
 
 	if viper.IsSet("tester") {
 		v.Tester = viper.GetString("tester")
@@ -108,6 +110,7 @@ SCRIPT
 		puppet.options           = "--verbose"
 	
 		puppet.facter = {
+			"aws_region" => "{{.AwsRegion}}",
 			"image_type" => "ami",
 			"image"      => "{{.ImageName}}",
 		}
