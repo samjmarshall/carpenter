@@ -75,8 +75,8 @@ func (p *Packer) Configure() {
 func (p *Packer) Run() {
 	log.WithFields(log.Fields{
 		"\nami_name":          os.Getenv("PACKER_AMI_NAME"),
+		"\naws_region":        os.Getenv("PACKER_AWS_REGION"),
 		"\ninstance_type":     os.Getenv("PACKER_INSTANCE_TYPE"),
-		"\nregion":            os.Getenv("PACKER_AWS_REGION"),
 		"\nsecurity_group_id": os.Getenv("PACKER_SECURITY_GROUP_ID"),
 		"\nsource_ami":        os.Getenv("PACKER_SOURCE_AMI"),
 		"\nspot_price":        os.Getenv("PACKER_SPOT_PRICE"),
