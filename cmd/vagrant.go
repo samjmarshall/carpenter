@@ -84,6 +84,7 @@ Vagrant.configure("2") do |config|
 	config.vm.define "{{.ImageName}}"
 
 	{{if eq .Provisioner "puppet"}}config.vm.synced_folder "puppet/data", "/tmp/vagrant-puppet/data"{{end}}
+	config.vm.synced_folder "test", "/tmp/test"
 
 	config.vm.provider "virtualbox" do |vb|
 		vb.name   = "{{.ImageName}}"
@@ -114,6 +115,8 @@ SCRIPT
 			"image"      => "{{.ImageName}}",
 		}
 	end{{end}}
+
+	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: 'curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec -s once'{{end}}
 
 	config.vm.provision "shell", inline: 'sudo apt-get -y upgrade'
 
@@ -154,8 +157,8 @@ func (v *Vagrant) Test() {
 	// Run InSpec
 	switch v.Tester {
 	case "inspec":
-		shell("inspec", "vendor", fmt.Sprintf("test/image/%s", v.ImageName), "--overwrite", "--chef-license=accept-silent")
-		shell("inspec", "exec", fmt.Sprintf("test/image/%s", v.ImageName), "--target", "ssh://vagrant@127.0.0.1:2222",
-			"--key-files", fmt.Sprintf(".vagrant/machines/%s/virtualbox/private_key", v.ImageName), "--sudo")
+		shell("vagrant", "ssh", "-c", fmt.Sprintf(`echo "Inspec version: $(sudo inspec version)";
+			sudo inspec vendor /tmp/test/image/%s --overwrite --chef-license=accept-silent;
+			sudo inspec exec /tmp/test/image/%s --no-distinct-exit`, v.ImageName, v.ImageName))
 	}
 }
