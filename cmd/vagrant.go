@@ -95,7 +95,7 @@ Vagrant.configure("2") do |config|
 
 	{{if eq .Provisioner "puppet"}}config.vm.provision "shell", inline: <<-SCRIPT
 if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
-		wget https://apt.puppetlabs.com/puppet6-release-xenial.deb
+		wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
 		sudo dpkg -i puppet6-release-xenial.deb
 		sudo apt-get update
 		sudo apt-get install puppet-agent
