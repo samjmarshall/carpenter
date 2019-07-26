@@ -159,6 +159,6 @@ func (v *Vagrant) Test() {
 	case "inspec":
 		shell("vagrant", "ssh", "-c", fmt.Sprintf(`echo "Inspec version: $(sudo inspec version)";
 			sudo inspec vendor /tmp/test/image/%s --overwrite --chef-license=accept-silent;
-			sudo inspec exec /tmp/test/image/%s`, v.ImageName, v.ImageName))
+			sudo inspec exec /tmp/test/image/%s --no-distinct-exit`, v.ImageName, v.ImageName))
 	}
 }
