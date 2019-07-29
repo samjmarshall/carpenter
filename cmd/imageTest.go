@@ -33,4 +33,5 @@ var imageTestCmd = &cobra.Command{
 
 func init() {
 	imageCmd.AddCommand(imageTestCmd)
+	imageTestCmd.Flags().StringVarP(&layers, "layers", "l", "", "Image layers e.g. --layers=base,php. Default `base,[image name]`.")
 }

@@ -95,12 +95,15 @@ Vagrant.configure("2") do |config|
 
 	{{if eq .Provisioner "puppet"}}config.vm.provision "shell", inline: <<-SCRIPT
 if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
-		wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
-		sudo dpkg -i puppet6-release-xenial.deb
-		sudo apt-get update
-		sudo apt-get install puppet-agent
+    wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
+    dpkg -i puppet6-release-xenial.deb
+    apt-get update
+    apt-get install puppet-agent
+    chown vagrant /opt/puppetlabs/facter/facts.d
 fi
 SCRIPT
+
+    config.vm.provision "file", source: "puppet/facts.yaml", destination: "/opt/puppetlabs/facter/facts.d/facts.yaml"
 
 	config.vm.provision "puppet" do |puppet|
 		puppet.manifests_path    = "puppet/manifests"
@@ -108,17 +111,11 @@ SCRIPT
 		puppet.hiera_config_path = "puppet/hiera.yaml"
 		puppet.module_path       = ["puppet/site", "puppet/modules"]
 		puppet.options           = "--verbose"
-	
-		puppet.facter = {
-			"aws_region" => "{{.AwsRegion}}",
-			"image_type" => "ami",
-			"image"      => "{{.ImageName}}",
-		}
 	end{{end}}
 
-	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: 'CI=xtrue curl -L https://omnitruck.chef.io/install.sh | sudo bash -s -- -P inspec -s once'{{end}}
+	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec -s once"{{end}}
 
-	config.vm.provision "shell", inline: 'sudo apt-get -y upgrade'
+	config.vm.provision "shell", inline: "apt-get -y upgrade"
 
 end
 `))
@@ -158,7 +155,6 @@ func (v *Vagrant) Test() {
 	switch v.Tester {
 	case "inspec":
 		shell("vagrant", "ssh", "-c", fmt.Sprintf(`echo "Inspec version: $(sudo inspec version)";
-			sudo inspec vendor /tmp/test/image/%s --overwrite --chef-license=accept-silent;
-			sudo inspec exec /tmp/test/image/%s --no-distinct-exit`, v.ImageName, v.ImageName))
+            sudo inspec exec %s --no-create-lockfile --chef-license=accept-silent`, inspecLocations()))
 	}
 }

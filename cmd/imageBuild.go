@@ -1,9 +1,19 @@
 package cmd
 
 import (
+	"io/ioutil"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
+
+type Facts struct {
+	AwsRegion   string   `yaml:"aws_region"`
+	ImageFormat string   `yaml:"image_format"`
+	ImageLayers []string `yaml:"image_layers"`
+}
 
 // imageBuildCmd represents the build command
 var imageBuildCmd = &cobra.Command{
@@ -13,11 +23,18 @@ var imageBuildCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
+		imageName = args[0]
+
 		if driver == "" {
 			driver = viper.GetString("driver.default")
 		}
 
-		imageName = args[0]
+		err := generatePuppetFacts()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Generate puppet/facts.yaml")
+		}
 
 		switch driver {
 		case "vagrant":
@@ -35,4 +52,25 @@ var imageBuildCmd = &cobra.Command{
 
 func init() {
 	imageCmd.AddCommand(imageBuildCmd)
+	imageBuildCmd.Flags().StringVarP(&layers, "layers", "l", "", "Image layers e.g. --layers=base,php. Default `base,[image name]`.")
+}
+
+func generatePuppetFacts() error {
+	f := Facts{
+		AwsRegion:   "ap-southeast-2",
+		ImageFormat: "ami",
+		ImageLayers: getLayers(),
+	}
+
+	y, err := yaml.Marshal(&f)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile("puppet/facts.yaml", y, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

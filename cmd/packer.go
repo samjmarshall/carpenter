@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -14,19 +16,20 @@ import (
 
 // Packer type build properties
 type Packer struct {
-	amiName string
+	AMIName      string
+	InstanceType string
+	SubnetID     string
 }
 
 // Configure Packer build properties
 func (p *Packer) Configure() {
 	if os.Getenv("PACKER_BUILD_VERSION") == "" {
-		p.amiName = imageName
+		p.AMIName = imageName
 	} else {
-		p.amiName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PACKER_BUILD_VERSION"))
+		p.AMIName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PACKER_BUILD_VERSION"))
 	}
 
-	os.Setenv("PACKER_IMAGE_NAME", imageName)
-	os.Setenv("PACKER_AMI_NAME", p.amiName)
+	os.Setenv("PACKER_AMI_NAME", p.AMIName)
 
 	if os.Getenv("PACKER_AWS_REGION") == "" {
 		if os.Getenv("AWS_REGION") != "" {
@@ -41,9 +44,16 @@ func (p *Packer) Configure() {
 		os.Setenv("PACKER_AWS_SECRET_ACCESS_KEY", os.Getenv("AWS_SECRET_ACCESS_KEY"))
 	}
 
+	os.Setenv("PACKER_BUILD_NAME", imageName)
+
+	os.Setenv("PACKER_IMAGE_LAYERS", strings.Join(getLayers(), ","))
+	os.Setenv("PACKER_INSPEC_LOCATIONS", inspecLocations())
+
 	if os.Getenv("PACKER_INSTANCE_TYPE") == "" {
 		os.Setenv("PACKER_INSTANCE_TYPE", viper.GetString("driver.packer.instance_type"))
 	}
+
+	p.InstanceType = os.Getenv("PACKER_INSTANCE_TYPE")
 
 	if os.Getenv("PACKER_SECURITY_GROUP_ID") == "" {
 		os.Setenv("PACKER_SECURITY_GROUP_ID", viper.GetString("driver.packer.security_group_id"))
@@ -53,12 +63,19 @@ func (p *Packer) Configure() {
 		os.Setenv("PACKER_SOURCE_AMI", viper.GetString("driver.packer.source_ami"))
 	}
 
-	if os.Getenv("PACKER_SPOT_PRICE") == "" {
-		os.Setenv("PACKER_SPOT_PRICE", viper.GetString("driver.packer.spot_price"))
-	}
-
 	if os.Getenv("PACKER_SUBNET_ID") == "" {
 		os.Setenv("PACKER_SUBNET_ID", viper.GetString("driver.packer.subnet_id"))
+	}
+
+	p.SubnetID = os.Getenv("PACKER_SUBNET_ID")
+
+	if os.Getenv("PACKER_SPOT_PRICE") == "" {
+		if viper.IsSet("driver.packer.spot_price") {
+			os.Setenv("PACKER_SPOT_PRICE", viper.GetString("driver.packer.spot_price"))
+		} else {
+			spotPrice := p.getSpotPrice()
+			os.Setenv("PACKER_SPOT_PRICE", spotPrice)
+		}
 	}
 
 	if os.Getenv("PACKER_VOLUME_SIZE") == "" {
@@ -92,55 +109,81 @@ func (p *Packer) Run() {
 func (p *Packer) Destroy() {
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(os.Getenv("PACKER_AWS_REGION"))}))
 
-	describeResult, err := svc.DescribeImages(&ec2.DescribeImagesInput{
+	result, err := svc.DescribeImages(&ec2.DescribeImagesInput{
 		Filters: []*ec2.Filter{
 			{
 				Name:   aws.String("name"),
-				Values: []*string{&p.amiName},
-			},
-			{
-				Name:   aws.String("name"),
-				Values: []*string{&p.amiName},
+				Values: []*string{&p.AMIName},
 			},
 		},
 		Owners: []*string{aws.String("self")},
 	})
 
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			fmt.Println(err.Error())
-		}
-
+		handleAWSError(err)
 		return
 	}
 
-	if len(describeResult.Images) > 0 {
-		fmt.Printf("Deregistering AMI => %s\n", *describeResult.Images[0].ImageId)
-		_, err := svc.DeregisterImage(&ec2.DeregisterImageInput{ImageId: describeResult.Images[0].ImageId})
+	if len(result.Images) > 0 {
+		log.Info("Deregistering AMI => %s\n", *result.Images[0].ImageId)
+		_, err := svc.DeregisterImage(&ec2.DeregisterImageInput{ImageId: result.Images[0].ImageId})
 
 		if err != nil {
-			if aerr, ok := err.(awserr.Error); ok {
-				switch aerr.Code() {
-				default:
-					fmt.Println(aerr.Error())
-				}
-			} else {
-				fmt.Println(err.Error())
-			}
-
+			handleAWSError(err)
 			return
 		}
 	} else {
-		log.Error(fmt.Sprintf("Could not find target AMI => %s", p.amiName))
+		log.WithFields(log.Fields{"AMIName": p.AMIName}).Error("Could not find target AMI")
 	}
 }
 
 // Test image configuration
 func (p *Packer) Test() {
 	// TODO
+}
+
+func (p *Packer) getSpotPrice() string {
+	svc := ec2.New(session.New(&aws.Config{Region: aws.String(os.Getenv("PACKER_AWS_REGION"))}))
+
+	subnetsResult, err := svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
+		SubnetIds: []*string{&p.SubnetID},
+	})
+	if err != nil {
+		handleAWSError(err)
+		return ""
+	}
+
+	historyResult, err := svc.DescribeSpotPriceHistory(&ec2.DescribeSpotPriceHistoryInput{
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("instance-type"),
+				Values: []*string{&p.InstanceType},
+			},
+		},
+		ProductDescriptions: []*string{aws.String("Linux/UNIX")},
+		AvailabilityZone:    subnetsResult.Subnets[0].AvailabilityZone,
+	})
+	if err != nil {
+		handleAWSError(err)
+		return ""
+	}
+
+	f, err := strconv.ParseFloat(*historyResult.SpotPriceHistory[0].SpotPrice, 64)
+	if err != nil {
+		log.Error(err.Error())
+		return ""
+	}
+
+	return fmt.Sprintf("%.6f", (f*5/100)+f) // Set spot price 5% above current market price.
+}
+
+func handleAWSError(err error) {
+	if aerr, ok := err.(awserr.Error); ok {
+		switch aerr.Code() {
+		default:
+			log.Error(aerr.Error())
+		}
+	} else {
+		log.Error(err.Error())
+	}
 }
