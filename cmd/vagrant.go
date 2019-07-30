@@ -155,6 +155,6 @@ func (v *Vagrant) Test() {
 	switch v.Tester {
 	case "inspec":
 		shell("vagrant", "ssh", "-c", fmt.Sprintf(`echo "Inspec version: $(sudo inspec version)";
-            sudo inspec exec %s --no-create-lockfile --chef-license=accept-silent`, inspecLocations()))
+            sudo inspec exec %s --no-distinct-exit --no-create-lockfile --chef-license=accept-silent`, inspecLocations()))
 	}
 }
