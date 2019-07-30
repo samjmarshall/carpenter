@@ -38,7 +38,7 @@ func inspecLocations() string {
 	var locations strings.Builder
 
 	for _, layer := range getLayers() {
-		locations.WriteString(fmt.Sprintf("/tmp/test/layer/%s ", layer))
+		locations.WriteString(fmt.Sprintf("/tmp/inspec/layer/%s ", layer))
 	}
 
 	return locations.String()

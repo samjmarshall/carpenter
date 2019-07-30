@@ -77,14 +77,10 @@ func (v *Vagrant) Run() {
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-
 	config.vm.box      = "{{.Box}}"
 	config.vm.hostname = "{{.ImageName}}"
 
 	config.vm.define "{{.ImageName}}"
-
-	{{if eq .Provisioner "puppet"}}config.vm.synced_folder "puppet/data", "/tmp/vagrant-puppet/data"{{end}}
-	config.vm.synced_folder "test", "/tmp/test"
 
 	config.vm.provider "virtualbox" do |vb|
 		vb.name   = "{{.ImageName}}"
@@ -93,30 +89,28 @@ Vagrant.configure("2") do |config|
 		vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
 	end
 
-	{{if eq .Provisioner "puppet"}}config.vm.provision "shell", inline: <<-SCRIPT
+	{{if eq .Provisioner "puppet"}}# Puppet apply
+	config.vm.synced_folder "puppet", "/tmp/puppet"
+	config.vm.provision "shell", inline: <<-SCRIPT
 if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
-    wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
-    dpkg -i puppet6-release-xenial.deb
-    apt-get update
-    apt-get install puppet-agent
-    chown vagrant /opt/puppetlabs/facter/facts.d
+	wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
+	dpkg -i puppet6-release-xenial.deb
+	apt-get update
+	apt-get install puppet-agent
+	/opt/puppetlabs/puppet/bin/gem install r10k --no-document
 fi
-SCRIPT
 
-    config.vm.provision "file", source: "puppet/facts.yaml", destination: "/opt/puppetlabs/facter/facts.d/facts.yaml"
+cd /tmp/puppet
+[ ! -d modules ] && /opt/puppetlabs/puppet/bin/r10k puppetfile install
+cp facts.yaml /opt/puppetlabs/facter/facts.d/facts.yaml
+/opt/puppetlabs/bin/puppet apply manifests --modulepath=site:modules --hiera_config=hiera.yaml --verbose
+SCRIPT{{end}}
 
-	config.vm.provision "puppet" do |puppet|
-		puppet.manifests_path    = "puppet/manifests"
-		puppet.manifest_file     = "site.pp"
-		puppet.hiera_config_path = "puppet/hiera.yaml"
-		puppet.module_path       = ["puppet/site", "puppet/modules"]
-		puppet.options           = "--verbose"
-	end{{end}}
-
-	{{if eq .Tester "inspec"}}config.vm.provision "shell", inline: "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec -s once"{{end}}
+	{{if eq .Tester "inspec"}}# InSpec test
+	config.vm.synced_folder "inspec", "/tmp/inspec"
+	config.vm.provision "shell", inline: "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec -s once"{{end}}
 
 	config.vm.provision "shell", inline: "apt-get -y upgrade"
-
 end
 `))
 
