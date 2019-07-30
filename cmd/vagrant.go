@@ -110,6 +110,7 @@ SCRIPT{{end}}
 	config.vm.synced_folder "inspec", "/tmp/inspec"
 	config.vm.provision "shell", inline: "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec -s once"{{end}}
 
+	# Upgrade all system packages
 	config.vm.provision "shell", inline: "apt-get -y upgrade"
 end
 `))
