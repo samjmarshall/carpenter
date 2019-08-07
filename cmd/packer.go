@@ -35,7 +35,7 @@ func (p *Packer) Configure() {
 		if os.Getenv("AWS_REGION") != "" {
 			os.Setenv("PACKER_AWS_REGION", os.Getenv("AWS_REGION"))
 		} else {
-			os.Setenv("PACKER_AWS_REGION", viper.GetString("driver.packer.aws_region"))
+			os.Setenv("PACKER_AWS_REGION", viper.GetString("image.driver.packer.aws_region"))
 		}
 	}
 
@@ -50,28 +50,28 @@ func (p *Packer) Configure() {
 	os.Setenv("PACKER_INSPEC_LOCATIONS", inspecLocations())
 
 	if os.Getenv("PACKER_INSTANCE_TYPE") == "" {
-		os.Setenv("PACKER_INSTANCE_TYPE", viper.GetString("driver.packer.instance_type"))
+		os.Setenv("PACKER_INSTANCE_TYPE", viper.GetString("image.driver.packer.instance_type"))
 	}
 
 	p.InstanceType = os.Getenv("PACKER_INSTANCE_TYPE")
 
 	if os.Getenv("PACKER_SECURITY_GROUP_ID") == "" {
-		os.Setenv("PACKER_SECURITY_GROUP_ID", viper.GetString("driver.packer.security_group_id"))
+		os.Setenv("PACKER_SECURITY_GROUP_ID", viper.GetString("image.driver.packer.security_group_id"))
 	}
 
 	if os.Getenv("PACKER_SOURCE_AMI") == "" {
-		os.Setenv("PACKER_SOURCE_AMI", viper.GetString("driver.packer.source_ami"))
+		os.Setenv("PACKER_SOURCE_AMI", viper.GetString("image.driver.packer.source_ami"))
 	}
 
 	if os.Getenv("PACKER_SUBNET_ID") == "" {
-		os.Setenv("PACKER_SUBNET_ID", viper.GetString("driver.packer.subnet_id"))
+		os.Setenv("PACKER_SUBNET_ID", viper.GetString("image.driver.packer.subnet_id"))
 	}
 
 	p.SubnetID = os.Getenv("PACKER_SUBNET_ID")
 
 	if os.Getenv("PACKER_SPOT_PRICE") == "" {
-		if viper.IsSet("driver.packer.spot_price") {
-			os.Setenv("PACKER_SPOT_PRICE", viper.GetString("driver.packer.spot_price"))
+		if viper.IsSet("image.driver.packer.spot_price") {
+			os.Setenv("PACKER_SPOT_PRICE", viper.GetString("image.driver.packer.spot_price"))
 		} else {
 			spotPrice := p.getSpotPrice()
 			os.Setenv("PACKER_SPOT_PRICE", spotPrice)
@@ -79,11 +79,11 @@ func (p *Packer) Configure() {
 	}
 
 	if os.Getenv("PACKER_VOLUME_SIZE") == "" {
-		os.Setenv("PACKER_VOLUME_SIZE", viper.GetString("driver.packer.volume_size"))
+		os.Setenv("PACKER_VOLUME_SIZE", viper.GetString("image.driver.packer.volume_size"))
 	}
 
 	if os.Getenv("PACKER_VPC_ID") == "" {
-		os.Setenv("PACKER_VPC_ID", viper.GetString("driver.packer.vpc_id"))
+		os.Setenv("PACKER_VPC_ID", viper.GetString("image.driver.packer.vpc_id"))
 	}
 
 }

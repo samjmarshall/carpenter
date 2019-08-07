@@ -28,8 +28,8 @@ func (v *Vagrant) Configure() {
 	v.ImageName = imageName
 	v.AwsRegion = os.Getenv("AWS_REGION")
 
-	if viper.IsSet("tester") {
-		v.Tester = viper.GetString("tester")
+	if viper.IsSet("image.tester") {
+		v.Tester = viper.GetString("image.tester")
 	}
 
 	out, err := exec.Command("vagrant", "status", imageName).Output()
@@ -52,21 +52,21 @@ func (v *Vagrant) Configure() {
 
 // Run Vagrant image build
 func (v *Vagrant) Run() {
-	if viper.IsSet("driver.vagrant.memory") {
-		v.Memory = viper.GetInt("driver.vagrant.memory")
+	if viper.IsSet("image.driver.vagrant.memory") {
+		v.Memory = viper.GetInt("image.driver.vagrant.memory")
 	} else {
 		v.Memory = 1024
 	}
 
-	if viper.IsSet("driver.vagrant.box") {
-		v.Box = viper.GetString("driver.vagrant.box")
+	if viper.IsSet("image.driver.vagrant.box") {
+		v.Box = viper.GetString("image.driver.vagrant.box")
 	} else {
 		log.Error("Vagrant driver 'box' is not set")
 		return
 	}
 
-	if viper.IsSet("provisioner") {
-		v.Provisioner = viper.GetString("provisioner")
+	if viper.IsSet("image.provisioner") {
+		v.Provisioner = viper.GetString("image.provisioner")
 	}
 
 	vagrantfilePath := fmt.Sprintf("%s/Vagrantfile", v.Cwd)

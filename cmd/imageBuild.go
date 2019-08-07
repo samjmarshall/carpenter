@@ -26,7 +26,7 @@ var imageBuildCmd = &cobra.Command{
 		imageName = args[0]
 
 		if driver == "" {
-			driver = viper.GetString("driver.default")
+			driver = viper.GetString("image.driver.default")
 		}
 
 		err := generatePuppetFacts()

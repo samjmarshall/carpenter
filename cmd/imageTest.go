@@ -13,7 +13,7 @@ var imageTestCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if driver == "" {
-			driver = viper.GetString("driver.default")
+			driver = viper.GetString("image.driver.default")
 		}
 
 		imageName = args[0]
