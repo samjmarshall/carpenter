@@ -1,0 +1,38 @@
+---
+# Default AMI modules
+modules:
+  - auditd
+  - base
+  - chrony
+  - ssh_hardening
+  - os_hardening
+
+# Global users and their authorized SSH keys
+base::users:
+  test@mydomain.com:
+    key: 'AAAAB3NzaC1yc2EAAAADAQABAAACAQC++B8YTGlBvYL+yEN+avTUL17Qwcw2r7FevF9qhVJGey14HcpNB5uftl/G8N7hwg6Le/8i1aPfNpwb5pzdIvg0IyXBZMgdksjigJGNMlhIA5SLQTbtR1C38IUPO2WMfKNDCEhKkIigynCMMXdBT2tQ0jO33uJ9PRkfZmL161c8B6Y+S18t0mkEoEfTNu9735tbhqCXEC7CG0mMCjxALWgJ+t8hxbflUF3yK8V8Pawl2Qq0FVQeIulPsPTSeiRmhaXY4f9yB4YRilfqXKU75Kti04ASldbAdvDQCQWk78/vLDAYoHnC0Mc69/lZ9TIFOavbgmuvqkz4x5AdQCO4VmzgBVK3K/NwxbA3XwslFb6mntItyilcuj5pCDKf8ewycRF0jOweiVHMGXMJga83dgUA7bHfwVACwTic50krVhJ0nzcsY8qZheh2SNKi5E8V7abP0uYJlwGvGAJuSqVjRIGGO+h+i75FqitW5DesIAmQezNlNy51pDdP7sheU8b7W6NLlCy/g6JGnA6iYVd2j6sGVC7kOu1MFpFoP2nbyOBCU5kaLVL1MvnxXS+KVRG3JHfIM8okgp8Y3mS3x2jdRdBAnTjfI4sletX4T4xwKJT5gUWH68XxbUBLkANkdUUCwBzOLJpFKQCVDq6v/Bb/gj8nuMngd/KSVW+oUXIU934KDQ=='
+    groups:
+      - admin
+
+auditd::max_log_file_action: keep_logs
+
+os_hardening::disable_filesystems:
+  - cramfs
+  - freevxfs
+  - jffs2
+  - hfs
+  - hfsplus
+  - squashfs
+  - udf
+  - vfat
+
+ssh_hardening::use_pam: true
+ssh_hardening::server_options:
+  DebianBanner: 'no'
+
+chrony::servers:
+  169.254.169.123:
+    - prefer
+    - iburst
+    - minpoll 4
+    - maxpoll 4

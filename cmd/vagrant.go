@@ -90,7 +90,7 @@ Vagrant.configure("2") do |config|
 	end
 
 	{{if eq .Provisioner "puppet"}}# Puppet apply
-	config.vm.synced_folder "puppet", "/tmp/puppet"
+	config.vm.synced_folder "image/puppet", "/tmp/puppet"
 	config.vm.provision "shell", inline: <<-SCRIPT
 if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
 	wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
@@ -107,7 +107,7 @@ cp facts.yaml /opt/puppetlabs/facter/facts.d/facts.yaml
 SCRIPT{{end}}
 
 	{{if eq .Tester "inspec"}}# InSpec test
-	config.vm.synced_folder "inspec", "/tmp/inspec"
+	config.vm.synced_folder "image/inspec", "/tmp/inspec"
 	config.vm.provision "shell", inline: "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec -s once"{{end}}
 
 	# Upgrade all system packages

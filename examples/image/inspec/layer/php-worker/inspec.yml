@@ -1,0 +1,7 @@
+name: php-worker
+title: PHP worker server
+depends:
+  - name: php
+    path: ../../modules/php
+  - name: supervisor
+    path: ../../modules/supervisor

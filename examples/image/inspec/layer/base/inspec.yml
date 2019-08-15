@@ -1,0 +1,7 @@
+name: base
+title: Base
+depends:
+  - name: base
+    path: ../../modules/base
+  - name: chrony
+    path: ../../modules/chrony

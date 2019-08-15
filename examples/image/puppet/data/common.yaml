@@ -1,0 +1,23 @@
+---
+# Hiera data merge behaviour
+lookup_options:
+  modules:
+    merge: unique
+  class_dependencies:
+    merge: deep
+  base::users:
+    merge: hash
+
+# Default PHP config
+php::globals::php_version: '7.3'
+php::manage_repos: true
+php::dev: false
+php::fpm: false
+php::extensions:
+  bcmath: {}
+  curl: {}
+  gd: {}
+  mbstring: {}
+  mysql:
+    so_name: pdo_mysql
+  zip: {}

@@ -1,0 +1,5 @@
+name: chrony
+title: Chrony (NTP)
+version: 0.1.0
+supports:
+  platform: linux

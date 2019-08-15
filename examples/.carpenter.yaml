@@ -1,0 +1,16 @@
+image:
+  provisioner: puppet
+  tester: inspec
+  driver:
+    default: vagrant
+    packer:
+      # aws_region: ap-southeast-2
+      instance_type: t3.medium
+      # security_group_id: sg-0abc1234
+      source_ami: ami-039d59656e4d49489
+      # subnet_id: subnet-0abc1234
+      volume_size: 20
+      # vpc_id: vpc-0abc1234
+    vagrant:
+      box: ubuntu/xenial64
+      memory: 2048

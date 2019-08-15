@@ -1,0 +1,5 @@
+name: supervisor
+title: Supervisord process manager
+version: 0.1.0
+supports:
+  platform: linux

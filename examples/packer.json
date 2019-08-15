@@ -1,0 +1,145 @@
+{
+  "variables": {
+    "ami_name": "{{env `PACKER_AMI_NAME`}}",
+    "aws_region": "{{env `PACKER_AWS_REGION`}}",
+    "aws_access_key": "{{env `PACKER_AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `PACKER_AWS_SECRET_ACCESS_KEY`}}",
+    "build_name": "{{env `PACKER_BUILD_NAME`}}",
+    "build_version": "{{env `PACKER_BUILD_VERSION`}}",
+    "image_layers": "{{env `PACKER_IMAGE_LAYERS`}}",
+    "inspec_locations": "{{env `PACKER_INSPEC_LOCATIONS`}}",
+    "instance_type": "{{env `PACKER_INSTANCE_TYPE`}}",
+    "security_group_id": "{{env `PACKER_SECURITY_GROUP_ID`}}",
+    "source_ami": "{{env `PACKER_SOURCE_AMI`}}",
+    "spot_price": "{{env `PACKER_SPOT_PRICE`}}",
+    "subnet_id": "{{env `PACKER_SUBNET_ID`}}",
+    "volume_size": "{{env `PACKER_VOLUME_SIZE`}}",
+    "vpc_id": "{{env `PACKER_VPC_ID`}}"
+  },
+  "sensitive-variables": [
+    "aws_secret_key"
+  ],
+  "builders": [{
+    "type": "amazon-ebs",
+    "ami_name": "{{user `ami_name`}}",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "ebs_optimized": "{{user `ebs_optimized`}}",
+    "instance_type": "{{user `instance_type`}}",
+    "launch_block_device_mappings": [{
+      "device_name": "/dev/sda1",
+      "volume_size": "{{user `volume_size`}}",
+      "volume_type": "gp2",
+      "delete_on_termination": true
+    }],
+    "name": "{{user `build_name`}}",
+    "region": "{{user `aws_region`}}",
+    "run_tags": {
+      "Name": "{{user `ami_name`}}",
+      "type": "packer"
+    },
+    "run_volume_tags": {
+      "Name": "{{user `ami_name`}}",
+      "type": "packer"
+    },
+    "security_group_id": "{{user `security_group_id`}}",
+    "source_ami": "{{user `source_ami`}}",
+    "spot_price": "{{user `spot_price`}}",
+    "ssh_username": "ubuntu",
+    "ssh_pty": true,
+    "subnet_id": "{{user `subnet_id`}}",
+    "tags": {
+      "image_layers": "{{user `image_layers`}}",
+      "version": "{{user `build_version`}}"
+    },
+    "vpc_id": "{{user `vpc_id`}}"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
+    "inline": [
+      "apt-get clean",
+      "rm -rf /var/lib/apt/lists/*",
+      "apt-get clean",
+      "apt-get update",
+      "apt-get -y upgrade",
+      "wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb",
+      "dpkg -i puppet6-release-xenial.deb",
+      "rm puppet6-release-xenial.deb",
+      "apt-get update",
+      "apt-get install puppet-agent",
+      "/opt/puppetlabs/puppet/bin/gem install r10k --no-document",
+      "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec"
+    ]
+  },
+  {
+    "type": "file",
+    "source": "image/puppet",
+    "destination": "/tmp"
+  },
+  {
+    "type": "shell",
+    "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
+    "inline": [
+      "cd /tmp/puppet",
+      "[ ! -d modules ] && /opt/puppetlabs/puppet/bin/r10k puppetfile install",
+      "cp facts.yaml /opt/puppetlabs/facter/facts.d/facts.yaml",
+      "/opt/puppetlabs/bin/puppet apply manifests --modulepath=site:modules --hiera_config=hiera.yaml --verbose"
+    ]
+  },
+  {
+    "type": "file",
+    "source": "image/inspec",
+    "destination": "/tmp"
+  },
+  {
+    "type": "shell",
+    "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
+    "inline": [
+      "apt-get -y upgrade",
+      "inspec exec {{user `inspec_locations`}} --no-distinct-exit --no-create-lockfile --chef-license=accept-silent"
+    ]
+  },
+  {
+    "type": "shell",
+    "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
+    "inline": [
+      "echo '=> Remove Puppet'",
+      "rm -r /opt/puppetlabs /etc/puppetlabs",
+      "apt-get --purge -y remove puppet-agent puppet6-release",
+
+      "echo '=> Remove InSpec'",
+      "rm -r .inspec/",
+      "unlink /usr/bin/inspec",
+      "rm -r /opt/inspec",
+
+      "echo '=> Clean up apt-get'",
+      "apt-get -y autoremove",
+      "apt-get clean",
+      "rm -r /var/cache/apt",
+
+      "echo '=> Purge cloud-init cache'",
+      "rm -r /var/lib/cloud/data",
+      "unlink /var/lib/cloud/instance",
+      "rm -r /var/lib/cloud/instances",
+      "rm -r /var/lib/cloud/sem",
+
+      "echo '=> Remove SSH authorized keys'",
+      "rm /root/.ssh/authorized_keys",
+      "rm /etc/ssh/ssh_host*",
+
+      "echo '=> Purge instance identity'",
+      "rm /etc/hostname",
+      "rm /etc/machine-id",
+      "touch /etc/machine-id",
+      "rm -f /var/lib/dhcp/dhclient.*",
+      "rm /etc/resolv.conf",
+
+      "echo '=> Delete temporary files'",
+      "rm -r /tmp/*",
+
+      "echo '=> Clear logs'",
+      "find /var/log -type f | while read f; do echo > $f; done"
+    ]
+  }]
+}

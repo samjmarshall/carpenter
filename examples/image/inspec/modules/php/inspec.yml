@@ -1,0 +1,8 @@
+name: php
+title: PHP
+version: 0.1.0
+supports:
+  platform: linux
+# depends:
+#   - name: php-baseline
+#     url: https://github.com/dev-sec/php-baseline/archive/master.tar.gz

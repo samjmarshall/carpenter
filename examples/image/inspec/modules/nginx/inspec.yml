@@ -1,0 +1,8 @@
+name: nginx
+title: NGINX
+version: 0.1.0
+supports:
+  platform: linux
+depends:
+  - name: nginx-baseline
+    url: https://github.com/foundulabs/nginx-baseline/archive/master.tar.gz

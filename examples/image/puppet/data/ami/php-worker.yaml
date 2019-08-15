@@ -1,0 +1,8 @@
+---
+modules:
+  - php
+  - supervisor
+
+php::cli::settings:
+  PHP/max_execution_time: 900
+  PHP/memory_limit: 384M

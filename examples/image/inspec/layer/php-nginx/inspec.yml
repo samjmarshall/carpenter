@@ -1,0 +1,7 @@
+name: php-nginx
+title: PHP/NGINX Web server
+depends:
+  - name: nginx
+    path: ../../modules/nginx
+  - name: php
+    path: ../../modules/php

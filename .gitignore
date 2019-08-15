@@ -1,6 +1,11 @@
 # Go
 go.sum
 
-# Vagrant
+# Vagrant files
 .vagrant
+*console.log
 Vagrantfile
+
+# Puppet
+**/puppet/modules/
+facts.yaml

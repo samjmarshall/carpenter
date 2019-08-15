@@ -33,7 +33,7 @@ var imageBuildCmd = &cobra.Command{
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Error("Generate puppet/facts.yaml")
+			}).Error("Generate image/puppet/facts.yaml")
 		}
 
 		switch driver {
@@ -67,7 +67,7 @@ func generatePuppetFacts() error {
 		return err
 	}
 
-	err = ioutil.WriteFile("puppet/facts.yaml", y, 0644)
+	err = ioutil.WriteFile("image/puppet/facts.yaml", y, 0644)
 	if err != nil {
 		return err
 	}

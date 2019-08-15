@@ -1,0 +1,25 @@
+forge 'https://forge.puppet.com'
+
+# AMI base modules
+mod 'aboe/chrony'
+mod 'kemra102/auditd',
+  :git    => 'https://github.com/foundulabs/puppet-auditd',
+  :branch => 'samjmarshall/Native_puppet_types'
+mod 'hardening/os_hardening'
+mod 'hardening/ssh_hardening',
+  :git => 'https://github.com/foundulabs/puppet-ssh-hardening'
+
+# Application modules
+mod 'puppet/nginx'
+mod 'puppet/php'
+mod 'ajcrowe/supervisord',
+  :git => 'https://github.com/foundulabs/puppet-supervisord'
+
+# module depencies
+mod 'puppetlabs/apt'
+mod 'puppetlabs/stdlib'
+mod 'puppetlabs/concat'
+mod 'puppetlabs/inifile'
+mod 'puppet/archive'
+mod 'herculesteam/augeasproviders_sysctl'
+mod 'herculesteam/augeasproviders_core'

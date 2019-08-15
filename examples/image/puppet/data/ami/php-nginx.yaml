@@ -1,0 +1,91 @@
+---
+modules:
+  - php
+  - nginx
+
+base::users::www_data: true
+
+php::fpm: true
+php::fpm_service_ensure: running
+php::fpm_service_enable: false
+php::fpm::global_pool_settings:
+php::fpm::settings:
+  PHP/short_open_tag: 'On'
+  Session/session.upload_progress.enabled: 'On'
+  Session/session.upload_progress.cleanup: 'On'
+  Session/session.upload_progress.prefix: upload_progress_
+  Session/session.upload_progress.name: PHP_SESSION_UPLOAD_PROGRESS
+  Session/session.upload_progress.freq:  '1%'
+  Session/session.upload_progress.min_freq: 1
+php::fpm::global_pool_settings:
+  listen: "/run/php/php%{lookup('php::globals::php_version')}-fpm.sock"
+  listen_owner: www-data
+  listen_group: www-data
+  listen_mode: '0660'
+  pm: ondemand
+  pm_max_children: 150
+php::fpm::config::emergency_restart_threshold: 10
+php::fpm::config::emergency_restart_interval: 1m
+php::fpm::config::process_control_timeout: 10s
+
+nginx::daemon_user: www-data
+nginx::daemon_group: www-data
+nginx::service_ensure: running
+nginx::service_enable: false
+nginx::confd_purge: true
+nginx::confd_only: true
+nginx::server_purge: true
+nginx::global_mode: '0600'
+nginx::sites_available_mode: '0600'
+nginx::server_tokens: 'off'
+nginx::http_tcp_nopush: 'on'
+nginx::gzip: 'on'
+nginx::nginx_servers:
+  00-php-fpm:
+    server_name:
+      - _
+    www_root: /var/www/html/public
+    use_default_location: false
+    raw_prepend:
+      - if ($http_x_forwarded_proto = "http") { rewrite ^ https://$host$request_uri? permanent; }
+    add_header:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains;
+  90-monitoring:
+    server_name:
+      - localhost
+    index_files: []
+    access_log: 'off'
+    error_log: absent
+    use_default_location: false
+nginx::nginx_locations:
+  base:
+    server: 00-php-fpm
+    location: /
+    index_files: []
+    try_files:
+      - $uri
+      - $uri/
+      - /index.php?$query_string
+  php:
+    server: 00-php-fpm
+    location: ~ \.php$
+    fastcgi: "unix:/run/php/php%{lookup('php::globals::php_version')}-fpm.sock"
+    fastcgi_index: index.php
+    fastcgi_split_path: ^(.+\.php)(/.+)$
+    try_files:
+      - $uri
+      - =404
+  ht:
+    server: 00-php-fpm
+    location: ~ /\.ht
+    location_deny:
+      - all
+    index_files: []
+  monitoring:
+    server: 90-monitoring
+    location: /nginx_status
+    index_files: []
+    location_cfg_append:
+      stub_status: 'on'
+      allow: 127.0.0.1
+      deny: all

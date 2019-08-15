@@ -1,0 +1,5 @@
+name: php
+title: Default PHP server
+depends:
+  - name: php
+    path: ../../modules/php
