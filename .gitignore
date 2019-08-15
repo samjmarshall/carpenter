@@ -1,6 +1,9 @@
 # Go
 go.sum
 
+# Carpenter
+vendor/
+
 # Vagrant files
 .vagrant
 *console.log

@@ -14,7 +14,7 @@ var layers string
 // imageCmd represents the image command
 var imageCmd = &cobra.Command{
 	Use:   "image",
-	Short: "Build and manage virtual machine images.",
+	Short: "Build and manage virtual machine images",
 	Long:  `Build and manage virtual machine images for AWS, VirtualBox or Docker.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Missing subcommand")

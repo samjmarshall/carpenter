@@ -28,15 +28,11 @@ func (v *Vagrant) Configure() {
 	v.ImageName = imageName
 	v.AwsRegion = os.Getenv("AWS_REGION")
 
-	if viper.IsSet("image.tester") {
-		v.Tester = viper.GetString("image.tester")
-	}
-
 	out, err := exec.Command("vagrant", "status", imageName).Output()
 
-	if err != nil || strings.Contains(string(out), "not created (virtualbox)") {
+	if strings.Contains(string(out), "not created") || err != nil {
 		v.Running = false
-	} else if strings.Contains(string(out), "running (virtualbox)") {
+	} else if strings.Contains(string(out), "running") {
 		v.Running = true
 	} else {
 		fmt.Println("Unknown Vagrant machine state")
@@ -47,6 +43,10 @@ func (v *Vagrant) Configure() {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	if viper.IsSet("image.tester") {
+		v.Tester = viper.GetString("image.tester")
 	}
 }
 
