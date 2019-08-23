@@ -54,7 +54,7 @@ cd ./carpenter/examples
 carpenter image build php-nginx
 ```
 
-**Test** - Test is run immediately after build by default. This allows you to run tests against your build at any time, however, only when the target build is still accessible i.e. local Docker or Vagrant builds.
+**Test** - Test is run immediately after build by default. This allows you to run tests against your build at any time, however, only when the target is accessible after build i.e. local Docker or Vagrant builds.
 ```bash
 carpenter image test php-nginx
 ```
