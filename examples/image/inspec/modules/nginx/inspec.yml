@@ -5,4 +5,4 @@ supports:
   platform: linux
 depends:
   - name: nginx-baseline
-    url: https://github.com/foundulabs/nginx-baseline/archive/master.tar.gz
+    url: https://github.com/rokerlabs/nginx-baseline/archive/master.tar.gz
