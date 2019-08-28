@@ -22,7 +22,7 @@ Requires:
   * go `>= 1.12`
 
 ```bash
-git clone https://github.com/rokertech/carpenter.git
+git clone https://github.com/rokerlabs/carpenter.git
 
 export GOPATH="$HOME/go" >> ~/.bash_profile
 export PATH="$PATH:$GOPATH/bin" >> ~/.bash_profile
