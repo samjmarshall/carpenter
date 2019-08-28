@@ -19,7 +19,7 @@ Ensure all listed prerequisites are installed for the driver, tester and provisi
 
 Requires:
 
-  * go `>= 1.11`
+  * go `>= 1.12`
 
 ```bash
 git clone https://github.com/rokertech/carpenter.git
