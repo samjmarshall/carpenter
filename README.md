@@ -66,4 +66,4 @@ carpenter image destroy php-nginx
 
 ## Copyright
 
-Copyright (c) 2019 Roker Tech. See [LICENSE](./LICENSE) for details.
+Copyright (c) 2019 Roker Labs. See [LICENSE](./LICENSE) for details.

@@ -1,4 +1,4 @@
-module github.com/samjmarshall/carpenter
+module github.com/rokerlabs/carpenter
 
 go 1.12
 
