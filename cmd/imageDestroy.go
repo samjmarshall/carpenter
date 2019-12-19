@@ -8,7 +8,7 @@ import (
 // imageDestroyCmd represents the build command
 var imageDestroyCmd = &cobra.Command{
 	Use:   "destroy",
-	Short: "Destroy up image build resources",
+	Short: "Destroy image build resources",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 

@@ -108,7 +108,7 @@ SCRIPT{{end}}
 
 	{{if eq .Tester "inspec"}}# InSpec test
 	config.vm.synced_folder "image/inspec", "/tmp/inspec"
-	config.vm.provision "shell", inline: "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec -s once"{{end}}
+	config.vm.provision "shell", inline: "curl -sSL https://omnitruck.chef.io/install.sh | CI=true bash -s -- -P inspec"{{end}}
 
 	# Upgrade all system packages
 	config.vm.provision "shell", inline: "apt-get -y upgrade"

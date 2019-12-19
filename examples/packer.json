@@ -69,7 +69,7 @@
       "apt-get update",
       "apt-get install puppet-agent",
       "/opt/puppetlabs/puppet/bin/gem install r10k --no-document",
-      "CI=xtrue curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec"
+      "curl -sSL https://omnitruck.chef.io/install.sh | CI=true bash -s -- -P inspec"
     ]
   },
   {
