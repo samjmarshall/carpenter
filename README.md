@@ -19,13 +19,12 @@ Ensure all listed prerequisites are installed for the driver, tester and provisi
 
 Requires:
 
-  * go `>= 1.12`
+  * go `>= 1.13`
 
 ```bash
 git clone https://github.com/rokerlabs/carpenter.git
 
-export GOPATH="$HOME/go" >> ~/.bash_profile
-export PATH="$PATH:$GOPATH/bin" >> ~/.bash_profile
+export PATH="$HOME/go/bin:$PATH" >> ~/.bash_profile
 
 source ~/.bash_profile
 
