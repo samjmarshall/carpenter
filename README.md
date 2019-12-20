@@ -1,4 +1,8 @@
+[![Build status](https://badge.buildkite.com/69ccb4419a7cda90f5a810fa4e14bed55889342c2c3380fd02.svg)](https://buildkite.com/rokerlabs/carpenter?branch=master)
+
 # Carpenter
+
+Carpenter docker image [rokerlabs/carpenter](https://hub.docker.com/repository/docker/rokerlabs/carpenter).
 
 ## Prerequisites
 
