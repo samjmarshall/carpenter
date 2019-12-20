@@ -148,6 +148,7 @@ func (p *Packer) getSpotPrice() string {
 	subnetsResult, err := svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
 		SubnetIds: []*string{&p.SubnetID},
 	})
+
 	if err != nil {
 		handleAWSError(err)
 		return ""
@@ -163,12 +164,23 @@ func (p *Packer) getSpotPrice() string {
 		ProductDescriptions: []*string{aws.String("Linux/UNIX")},
 		AvailabilityZone:    subnetsResult.Subnets[0].AvailabilityZone,
 	})
+
 	if err != nil {
-		handleAWSError(err)
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			ec2.UnauthorizedOperation:
+				log.Warn("UnauthorizedOperation: You are not authorized to perform 'ec2:DescribeSpotPriceHistory'.")
+			default:
+				log.Error(aerr.Error())
+			}
+		} else {
+			log.Error(err.Error())
+		}
 		return ""
 	}
 
 	f, err := strconv.ParseFloat(*historyResult.SpotPriceHistory[0].SpotPrice, 64)
+
 	if err != nil {
 		log.Error(err.Error())
 		return ""
