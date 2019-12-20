@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eo pipefail
+
+imageRepo="${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}"
+
+if [ "${BUILDKITE}" == "true" ]; then
+    echo "+++ :docker: Tag ${imageRepo}:${minor}-beta => ${imageRepo}:latest"
+    docker tag ${imageRepo}:${minor}-beta ${imageRepo}:latest
+    docker push ${imageRepo}:latest
+else
+    echo "ERROR   Docker image cannot be released outside of the Buildkite pipeline!"
+    exit 1
+fi

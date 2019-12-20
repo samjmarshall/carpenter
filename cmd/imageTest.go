@@ -9,23 +9,23 @@ import (
 var imageTestCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Test image configuration",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if driver == "" {
 			driver = viper.GetString("image.driver.default")
 		}
 
-		imageName = args[0]
+		imageName := getImageName(args)
 
 		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
-			build.Configure()
+			build.Configure(imageName)
 			build.Test()
 		case "packer":
 			build := new(Packer)
-			build.Configure()
+			build.Configure(imageName)
 			build.Test()
 		}
 	},

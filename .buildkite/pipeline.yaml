@@ -1,0 +1,10 @@
+steps:
+  - label: ':docker: Build image'
+    command: .buildkite/bin/build
+
+  - type: block
+    branches: master
+
+  - label: ':docker: Tag stable'
+    command: .buildkite/bin/release
+    branches: master

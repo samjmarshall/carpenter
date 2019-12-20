@@ -20,17 +20,17 @@ var imageBuildCmd = &cobra.Command{
 	Use:   "build [image name]",
 	Short: "Build image",
 	Long:  `Build and configure a virtual machine image.`,
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		imageName = args[0]
 
 		if driver == "" {
 			driver = viper.GetString("image.driver.default")
 		}
 
+		imageName := getImageName(args)
+
 		if viper.GetString("image.provisioner") == "puppet" {
-			err := generatePuppetFacts()
+			err := generatePuppetFacts(imageName)
 			if err != nil {
 				log.WithFields(log.Fields{
 					"error": err,
@@ -41,12 +41,12 @@ var imageBuildCmd = &cobra.Command{
 		switch driver {
 		case "vagrant":
 			build := new(Vagrant)
-			build.Configure()
+			build.Configure(imageName)
 			build.Run()
 			build.Test()
 		case "packer":
 			build := new(Packer)
-			build.Configure()
+			build.Configure(imageName)
 			build.Run()
 		}
 	},
@@ -57,11 +57,11 @@ func init() {
 	imageBuildCmd.Flags().StringVarP(&layers, "layers", "l", "", "Image layers e.g. --layers=base,php. Default `base,[image name]`.")
 }
 
-func generatePuppetFacts() error {
+func generatePuppetFacts(imageName string) error {
 	f := Facts{
 		AwsRegion:   "ap-southeast-2",
 		ImageFormat: "ami",
-		ImageLayers: getLayers(),
+		ImageLayers: getLayers(imageName),
 	}
 
 	y, err := yaml.Marshal(&f)

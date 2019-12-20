@@ -24,11 +24,11 @@ type Vagrant struct {
 }
 
 // Configure Vagrant build properties
-func (v *Vagrant) Configure() {
+func (v *Vagrant) Configure(imageName string) {
 	v.ImageName = imageName
 	v.AwsRegion = os.Getenv("AWS_REGION")
 
-	out, err := exec.Command("vagrant", "status", imageName).Output()
+	out, err := exec.Command("vagrant", "status", v.ImageName).Output()
 
 	if strings.Contains(string(out), "not created") || err != nil {
 		v.Running = false
@@ -130,7 +130,7 @@ end
 	if v.Running {
 		shell("vagrant", "provision")
 	} else {
-		shell("vagrant", "up")
+		shell("vagrant", "up", "--install-provider")
 	}
 }
 
@@ -150,6 +150,6 @@ func (v *Vagrant) Test() {
 	switch v.Tester {
 	case "inspec":
 		shell("vagrant", "ssh", "-c", fmt.Sprintf(`echo "Inspec version: $(sudo inspec version)";
-            sudo inspec exec %s --no-distinct-exit --no-create-lockfile --chef-license=accept-silent`, inspecLocations()))
+            sudo inspec exec %s --no-distinct-exit --no-create-lockfile --chef-license=accept-silent`, inspecLocations(v.ImageName)))
 	}
 }

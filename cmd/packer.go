@@ -22,7 +22,7 @@ type Packer struct {
 }
 
 // Configure Packer build properties
-func (p *Packer) Configure() {
+func (p *Packer) Configure(imageName string) {
 	if os.Getenv("PACKER_BUILD_VERSION") == "" {
 		p.AMIName = imageName
 	} else {
@@ -44,10 +44,10 @@ func (p *Packer) Configure() {
 		os.Setenv("PACKER_AWS_SECRET_ACCESS_KEY", os.Getenv("AWS_SECRET_ACCESS_KEY"))
 	}
 
-	os.Setenv("PACKER_BUILD_NAME", imageName)
+	os.Setenv("PACKER_BUILD_NAME", p.AMIName)
 
-	os.Setenv("PACKER_IMAGE_LAYERS", strings.Join(getLayers(), ","))
-	os.Setenv("PACKER_INSPEC_LOCATIONS", inspecLocations())
+	os.Setenv("PACKER_IMAGE_LAYERS", strings.Join(getLayers(p.AMIName), ","))
+	os.Setenv("PACKER_INSPEC_LOCATIONS", inspecLocations(p.AMIName))
 
 	if os.Getenv("PACKER_INSTANCE_TYPE") == "" {
 		os.Setenv("PACKER_INSTANCE_TYPE", viper.GetString("image.driver.packer.instance_type"))
@@ -91,15 +91,15 @@ func (p *Packer) Configure() {
 // Run Packer image build
 func (p *Packer) Run() {
 	log.WithFields(log.Fields{
-		"\nami_name":          os.Getenv("PACKER_AMI_NAME"),
-		"\naws_region":        os.Getenv("PACKER_AWS_REGION"),
-		"\ninstance_type":     os.Getenv("PACKER_INSTANCE_TYPE"),
-		"\nsecurity_group_id": os.Getenv("PACKER_SECURITY_GROUP_ID"),
-		"\nsource_ami":        os.Getenv("PACKER_SOURCE_AMI"),
-		"\nspot_price":        os.Getenv("PACKER_SPOT_PRICE"),
-		"\nsubnet_id":         os.Getenv("PACKER_SUBNET_ID"),
-		"\nvolume_size":       os.Getenv("PACKER_VOLUME_SIZE"),
-		"\nvpc_id":            os.Getenv("PACKER_VPC_ID"),
+		"ami_name":          os.Getenv("PACKER_AMI_NAME"),
+		"aws_region":        os.Getenv("PACKER_AWS_REGION"),
+		"instance_type":     os.Getenv("PACKER_INSTANCE_TYPE"),
+		"security_group_id": os.Getenv("PACKER_SECURITY_GROUP_ID"),
+		"source_ami":        os.Getenv("PACKER_SOURCE_AMI"),
+		"spot_price":        os.Getenv("PACKER_SPOT_PRICE"),
+		"subnet_id":         os.Getenv("PACKER_SUBNET_ID"),
+		"volume_size":       os.Getenv("PACKER_VOLUME_SIZE"),
+		"vpc_id":            os.Getenv("PACKER_VPC_ID"),
 	}).Info("Packer build properties")
 
 	shell("packer", "build", "packer.json")

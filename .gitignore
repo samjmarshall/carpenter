@@ -3,6 +3,7 @@ go.sum
 
 # Carpenter
 vendor/
+carpenter
 
 # Vagrant files
 .vagrant

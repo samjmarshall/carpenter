@@ -28,7 +28,7 @@ export PATH="$HOME/go/bin:$PATH" >> ~/.bash_profile
 
 source ~/.bash_profile
 
-cd ./carpenter
+cd ./carpenter/src
 go install
 ```
 
