@@ -29,11 +29,13 @@ var imageBuildCmd = &cobra.Command{
 			driver = viper.GetString("image.driver.default")
 		}
 
-		err := generatePuppetFacts()
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Generate image/puppet/facts.yaml")
+		if viper.GetString("image.provisioner") == "puppet" {
+			err := generatePuppetFacts()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Generate image/puppet/facts.yaml")
+			}
 		}
 
 		switch driver {
