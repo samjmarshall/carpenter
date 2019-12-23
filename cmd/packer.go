@@ -98,15 +98,15 @@ func (p *Packer) Configure(imageName string) {
 // Run Packer image build
 func (p *Packer) Run() {
 	log.WithFields(log.Fields{
-		"ami_name":          os.Getenv("PACKER_AMI_NAME"),
-		"aws_region":        os.Getenv("PACKER_AWS_REGION"),
-		"instance_type":     os.Getenv("PACKER_INSTANCE_TYPE"),
-		"security_group_id": os.Getenv("PACKER_SECURITY_GROUP_ID"),
-		"source_ami":        os.Getenv("PACKER_SOURCE_AMI"),
-		"spot_price":        os.Getenv("PACKER_SPOT_PRICE"),
-		"subnet_id":         os.Getenv("PACKER_SUBNET_ID"),
-		"volume_size":       os.Getenv("PACKER_VOLUME_SIZE"),
-		"vpc_id":            os.Getenv("PACKER_VPC_ID"),
+		"amiName":         os.Getenv("PACKER_AMI_NAME"),
+		"awsRegion":       os.Getenv("PACKER_AWS_REGION"),
+		"instanceType":    os.Getenv("PACKER_INSTANCE_TYPE"),
+		"securityGroupId": os.Getenv("PACKER_SECURITY_GROUP_ID"),
+		"sourceAmi":       os.Getenv("PACKER_SOURCE_AMI"),
+		"spotPrice":       os.Getenv("PACKER_SPOT_PRICE"),
+		"subnetId":        os.Getenv("PACKER_SUBNET_ID"),
+		"volumeSize":      os.Getenv("PACKER_VOLUME_SIZE"),
+		"vpcId":           os.Getenv("PACKER_VPC_ID"),
 	}).Info("Packer build properties")
 
 	shell("packer", "build", "packer.json")
@@ -133,7 +133,7 @@ func (p *Packer) Destroy() {
 	}
 
 	if len(result.Images) > 0 {
-		log.Info("Deregistering AMI => ", *result.Images[0].ImageId)
+		log.WithFields(log.Fields{"imageId": *result.Images[0].ImageId}).Info("Deregistering AMI")
 		_, err := svc.DeregisterImage(&ec2.DeregisterImageInput{ImageId: result.Images[0].ImageId})
 
 		if err != nil {
@@ -142,7 +142,7 @@ func (p *Packer) Destroy() {
 			return
 		}
 	} else {
-		log.WithFields(log.Fields{"AMIName": p.AMIName}).Error("Could not find target AMI")
+		log.WithFields(log.Fields{"amiName": p.AMIName}).Error("Could not find target AMI")
 	}
 }
 
