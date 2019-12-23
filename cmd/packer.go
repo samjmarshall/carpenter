@@ -171,7 +171,10 @@ func (p *Packer) getSpotPrice() string {
 			case "UnauthorizedOperation":
 				log.Warn("UnauthorizedOperation: You are not authorized to perform 'ec2:DescribeSpotPriceHistory'.")
 			default:
-				log.Error(aerr.Error())
+				log.WithFields(log.Fields{
+					"code":    aerr.Code(),
+					"message": aerr.Message(),
+				}).Error(aerr.Error())
 			}
 		} else {
 			log.Error(err.Error())
