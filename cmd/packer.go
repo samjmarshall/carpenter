@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	log "github.com/sirupsen/logrus"
@@ -19,6 +20,7 @@ type Packer struct {
 	AMIName      string
 	InstanceType string
 	SubnetID     string
+	AwsConfig    *aws.Config
 }
 
 // Configure Packer build properties
@@ -42,6 +44,11 @@ func (p *Packer) Configure(imageName string) {
 	if os.Getenv("PACKER_AWS_ACCESS_KEY_ID") == "" {
 		os.Setenv("PACKER_AWS_ACCESS_KEY_ID", os.Getenv("AWS_ACCESS_KEY_ID"))
 		os.Setenv("PACKER_AWS_SECRET_ACCESS_KEY", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+	}
+
+	p.AwsConfig = &aws.Config{
+		Region:      aws.String(os.Getenv("PACKER_AWS_REGION")),
+		Credentials: credentials.NewStaticCredentials(os.Getenv("PACKER_AWS_ACCESS_KEY_ID"), os.Getenv("PACKER_AWS_SECRET_ACCESS_KEY"), ""),
 	}
 
 	os.Setenv("PACKER_BUILD_NAME", p.AMIName)
@@ -107,7 +114,7 @@ func (p *Packer) Run() {
 
 // Destroy up build artifacts
 func (p *Packer) Destroy() {
-	svc := ec2.New(session.New(&aws.Config{Region: aws.String(os.Getenv("PACKER_AWS_REGION"))}))
+	svc := ec2.New(session.New(p.AwsConfig))
 
 	result, err := svc.DescribeImages(&ec2.DescribeImagesInput{
 		Filters: []*ec2.Filter{
@@ -145,7 +152,7 @@ func (p *Packer) Test() {
 }
 
 func (p *Packer) getSpotPrice() string {
-	svc := ec2.New(session.New(&aws.Config{Region: aws.String(os.Getenv("PACKER_AWS_REGION"))}))
+	svc := ec2.New(session.New(p.AwsConfig))
 
 	subnetsResult, err := svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
 		SubnetIds: []*string{&p.SubnetID},
