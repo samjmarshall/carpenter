@@ -199,9 +199,15 @@ func handleAWSError(err error) {
 	if aerr, ok := err.(awserr.Error); ok {
 		switch aerr.Code() {
 		default:
-			log.Error(aerr.Error())
+			log.WithFields(log.Fields{
+				"code":    aerr.Code(),
+				"message": aerr.Message(),
+			}).Error(aerr.Error())
 		}
 	} else {
-		log.Error(err.Error())
+		log.WithFields(log.Fields{
+			"code":    err.Code(),
+			"message": err.Message(),
+		}).Error(err.Error())
 	}
 }
