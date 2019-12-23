@@ -120,6 +120,7 @@ func (p *Packer) Destroy() {
 	})
 
 	if err != nil {
+		log.Error("Unable to perform operation 'ec2:DescribeImages'")
 		handleAWSError(err)
 		return
 	}
@@ -129,6 +130,7 @@ func (p *Packer) Destroy() {
 		_, err := svc.DeregisterImage(&ec2.DeregisterImageInput{ImageId: result.Images[0].ImageId})
 
 		if err != nil {
+			log.Error("Unable to perform operation 'ec2:DeregisterImage'")
 			handleAWSError(err)
 			return
 		}
@@ -150,6 +152,7 @@ func (p *Packer) getSpotPrice() string {
 	})
 
 	if err != nil {
+		log.Warn("Unable to perform operation 'ec2:DescribeSubnets'")
 		handleAWSError(err)
 		return ""
 	}
@@ -166,19 +169,8 @@ func (p *Packer) getSpotPrice() string {
 	})
 
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case "UnauthorizedOperation":
-				log.Warn("UnauthorizedOperation: You are not authorized to perform 'ec2:DescribeSpotPriceHistory'.")
-			default:
-				log.WithFields(log.Fields{
-					"code":    aerr.Code(),
-					"message": aerr.Message(),
-				}).Error(aerr.Error())
-			}
-		} else {
-			log.Error(err.Error())
-		}
+		log.Warn("Unable to perform operation 'ec2:DescribeSpotPriceHistory'")
+		handleAWSError(err)
 		return ""
 	}
 
