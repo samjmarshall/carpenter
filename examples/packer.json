@@ -67,7 +67,7 @@
       "dpkg -i puppet6-release-xenial.deb",
       "rm puppet6-release-xenial.deb",
       "apt-get update",
-      "apt-get install puppet-agent",
+      "apt-get -y install puppet-agent git",
       "/opt/puppetlabs/puppet/bin/gem install r10k --no-document",
       "curl -sSL https://omnitruck.chef.io/install.sh | CI=true bash -s -- -P inspec"
     ]
@@ -106,7 +106,7 @@
     "inline": [
       "echo '=> Remove Puppet'",
       "rm -r /opt/puppetlabs /etc/puppetlabs",
-      "apt-get --purge -y remove puppet-agent puppet6-release",
+      "apt-get --purge -y remove puppet-agent puppet6-release git",
 
       "echo '=> Remove InSpec'",
       "rm -r .inspec/",
