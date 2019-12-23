@@ -177,10 +177,7 @@ func (p *Packer) getSpotPrice() string {
 				}).Error(aerr.Error())
 			}
 		} else {
-			log.WithFields(log.Fields{
-				"code":    err.Code(),
-				"message": err.Message(),
-			}).Error(err.Error())
+			log.Error(err.Error())
 		}
 		return ""
 	}
@@ -205,9 +202,6 @@ func handleAWSError(err error) {
 			}).Error(aerr.Error())
 		}
 	} else {
-		log.WithFields(log.Fields{
-			"code":    err.Code(),
-			"message": err.Message(),
-		}).Error(err.Error())
+		log.Error(err.Error())
 	}
 }
