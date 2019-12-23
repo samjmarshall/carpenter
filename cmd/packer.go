@@ -177,7 +177,10 @@ func (p *Packer) getSpotPrice() string {
 				}).Error(aerr.Error())
 			}
 		} else {
-			log.Error(err.Error())
+			log.WithFields(log.Fields{
+				"code":    err.Code(),
+				"message": err.Message(),
+			}).Error(err.Error())
 		}
 		return ""
 	}
