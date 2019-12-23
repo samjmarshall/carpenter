@@ -133,7 +133,7 @@ func (p *Packer) Destroy() {
 	}
 
 	if len(result.Images) > 0 {
-		log.Info("Deregistering AMI => %s\n", *result.Images[0].ImageId)
+		log.Info("Deregistering AMI => ", *result.Images[0].ImageId)
 		_, err := svc.DeregisterImage(&ec2.DeregisterImageInput{ImageId: result.Images[0].ImageId})
 
 		if err != nil {
