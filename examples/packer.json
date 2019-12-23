@@ -27,10 +27,11 @@
     "ebs_optimized": "{{user `ebs_optimized`}}",
     "instance_type": "{{user `instance_type`}}",
     "launch_block_device_mappings": [{
+      "delete_on_termination": true,
       "device_name": "/dev/sda1",
+      "encrypted": true,
       "volume_size": "{{user `volume_size`}}",
-      "volume_type": "gp2",
-      "delete_on_termination": true
+      "volume_type": "gp2"
     }],
     "name": "{{user `build_name`}}",
     "region": "{{user `aws_region`}}",
