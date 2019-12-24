@@ -50,6 +50,7 @@
     "ssh_pty": true,
     "subnet_id": "{{user `subnet_id`}}",
     "tags": {
+      "Name": "{{user `ami_name`}}",
       "image_layers": "{{user `image_layers`}}",
       "version": "{{user `build_version`}}"
     },
