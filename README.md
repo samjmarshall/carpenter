@@ -1,4 +1,4 @@
-[![Build status](https://badge.buildkite.com/69ccb4419a7cda90f5a810fa4e14bed55889342c2c3380fd02.svg)](https://buildkite.com/rokerlabs/carpenter?branch=master)
+[![Build status](https://badge.buildkite.com/69ccb4419a7cda90f5a810fa4e14bed55889342c2c3380fd02.svg)](https://buildkite.com/rokerlabs/carpenter?branch=master) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8c53c95fdb104707b9a844a30272526b)](https://www.codacy.com/gh/rokerlabs/carpenter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rokerlabs/carpenter&amp;utm_campaign=Badge_Grade)
 
 # Carpenter
 
