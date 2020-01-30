@@ -3,5 +3,5 @@ title: Base
 depends:
   - name: base
     path: ../../modules/base
-  - name: chrony
-    path: ../../modules/chrony
+  - name: chrony-aws
+    url: https://github.com/rokerlabs/chrony-aws/archive/master.tar.gz

@@ -3,4 +3,4 @@
 title 'base'
 
 include_controls 'base'
-include_controls 'chrony'
+include_controls 'chrony-aws'
