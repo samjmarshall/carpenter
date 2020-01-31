@@ -31,15 +31,6 @@ control 'php-fpm-01' do
 end
 
 control 'php-fpm-02' do
-  impact 1.0
-  title 'PHP short open tags enabled'
-
-  describe ini("/etc/php/#{php_version}/fpm/php.ini") do
-    its('PHP.short_open_tag') { should eq 'On' }
-  end
-end
-
-control 'php-fpm-03' do
   impact 0.7
   title 'PHP inefficient legacy pages'
 
@@ -50,7 +41,7 @@ control 'php-fpm-03' do
   end
 end
 
-control 'php-fpm-04' do
+control 'php-fpm-03' do
   impact 0.7
   title 'PHP file upload and post body limits'
 
@@ -61,7 +52,7 @@ control 'php-fpm-04' do
   end
 end
 
-control 'php-fpm-05' do
+control 'php-fpm-04' do
   impact 0.7
   title 'PHP session file upload progress config'
 

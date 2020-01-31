@@ -8,25 +8,23 @@ base::users::www_data: true
 php::fpm: true
 php::fpm_service_ensure: running
 php::fpm_service_enable: false
-php::fpm::global_pool_settings:
+php::fpm_pools:
+  www:
+    listen_owner: www-data
+    listen_group: www-data
+    listen_mode: '0660'
+    pm: ondemand
+    pm_max_children: '150'
+php::fpm::config::emergency_restart_threshold: 10
+php::fpm::config::emergency_restart_interval: 1m
+php::fpm::config::process_control_timeout: 10s
 php::fpm::settings:
-  PHP/short_open_tag: 'On'
   Session/session.upload_progress.enabled: 'On'
   Session/session.upload_progress.cleanup: 'On'
   Session/session.upload_progress.prefix: upload_progress_
   Session/session.upload_progress.name: PHP_SESSION_UPLOAD_PROGRESS
   Session/session.upload_progress.freq:  '1%'
   Session/session.upload_progress.min_freq: 1
-php::fpm::global_pool_settings:
-  listen: "/run/php/php%{lookup('php::globals::php_version')}-fpm.sock"
-  listen_owner: www-data
-  listen_group: www-data
-  listen_mode: '0660'
-  pm: ondemand
-  pm_max_children: 150
-php::fpm::config::emergency_restart_threshold: 10
-php::fpm::config::emergency_restart_interval: 1m
-php::fpm::config::process_control_timeout: 10s
 
 nginx::daemon_user: www-data
 nginx::daemon_group: www-data
@@ -69,7 +67,7 @@ nginx::nginx_locations:
   php:
     server: 00-php-fpm
     location: ~ \.php$
-    fastcgi: "unix:/run/php/php%{lookup('php::globals::php_version')}-fpm.sock"
+    fastcgi: 127.0.0.1:9000
     fastcgi_index: index.php
     fastcgi_split_path: ^(.+\.php)(/.+)$
     try_files:

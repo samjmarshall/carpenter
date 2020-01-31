@@ -65,7 +65,7 @@ control 'nginx-conf-03' do
     'keepalive_timeout'             => ['65s'],
     'keepalive_requests'            => ['100'],
     'client_body_timeout'           => ['60s'],
-    'client_body_temp_path'         => ['/var/nginx/client_body_temp'],
+    'client_body_temp_path'         => ['/run/nginx/client_body_temp'],
     'client_max_body_size'          => ['10m'],
     'client_body_buffer_size'       => ['128k'],
     'send_timeout'                  => ['60s'],
@@ -102,7 +102,7 @@ control 'nginx-conf-05' do
   title 'NGINX http proxy config'
 
   {
-    'proxy_temp_path'                => ['/var/nginx/proxy_temp'],
+    'proxy_temp_path'                => ['/run/nginx/proxy_temp'],
     'proxy_connect_timeout'          => ['90s'],
     'proxy_send_timeout'             => ['90s'],
     'proxy_read_timeout'             => ['90s'],

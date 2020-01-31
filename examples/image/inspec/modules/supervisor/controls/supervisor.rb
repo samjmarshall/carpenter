@@ -22,7 +22,7 @@ control 'supervisor-00' do
 
   describe command('/usr/local/bin/supervisord --version') do
     its('exit_status') { should eq 0 }
-    its('stdout') { should match(%r{4.0.\d+}) }
+    its('stdout') { should match(%r{4\.\d+\.\d+}) }
   end
 end
 

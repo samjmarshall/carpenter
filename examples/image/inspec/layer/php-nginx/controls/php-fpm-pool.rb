@@ -9,25 +9,11 @@ control 'php-fpm-pool-00' do
   title 'PHP-FPM pool listen config'
 
   describe ini("/etc/php/#{php_version}/fpm/pool.d/www.conf") do
-    its('www.listen') { should eq "/run/php/php#{php_version}-fpm.sock" }
+    its('www.listen') { should eq '127.0.0.1:9000' }
     its(['www', 'listen.backlog']) { should eq '-1' }
     its(['www', 'listen.owner']) { should eq 'www-data' }
     its(['www', 'listen.group']) { should eq 'www-data' }
     its(['www', 'listen.mode']) { should eq '0660' }
-  end
-
-  describe file('/run/php') do
-    it { should be_directory }
-    its('mode') { should cmp '0755' }
-    its('owner') { should eq 'www-data' }
-    its('group') { should eq 'www-data' }
-  end
-
-  describe file("/run/php/php#{php_version}-fpm.sock") do
-    it { should be_socket }
-    its('mode') { should cmp '0660' }
-    its('owner') { should eq 'www-data' }
-    its('group') { should eq 'www-data' }
   end
 end
 

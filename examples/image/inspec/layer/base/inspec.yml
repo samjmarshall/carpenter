@@ -1,7 +1,14 @@
 name: base
-title: Base
+title: Baseline configuration
+version: 0.1.0
+supports:
+  platform: linux
 depends:
-  - name: base
-    path: ../../modules/base
   - name: chrony-aws
     url: https://github.com/rokerlabs/chrony-aws/archive/master.tar.gz
+  - name: linux-baseline
+    url: https://github.com/dev-sec/linux-baseline/archive/master.tar.gz
+  - name: linux-patch-baseline
+    url: https://github.com/dev-sec/linux-patch-baseline/archive/master.tar.gz
+  - name: ssh-baseline
+    url: https://github.com/dev-sec/ssh-baseline/archive/master.tar.gz

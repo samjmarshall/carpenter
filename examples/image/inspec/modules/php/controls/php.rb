@@ -63,20 +63,15 @@ control 'php-extensions-00' do
   title "PHP #{php_version} extensions"
 
   [
-    'bcmath',
     'ctype',
     'curl',
-    'gd',
     'json',
-    'mbstring',
     'mysqlnd',
     'openssl',
     'PDO',
-    'pdo_mysql',
     'readline',
     'tokenizer',
     'xml',
-    'zip',
   ].each do |extension|
     describe command('php -m') do
       its('stdout') { should match(%r{^#{extension}$}) }

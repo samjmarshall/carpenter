@@ -54,7 +54,7 @@ control 'nginx-server-00' do
   php_location = {
     '_'                       => ['~', '\\.php$'],
     'try_files'               => [['$uri', '=404']],
-    'fastcgi_pass'            => [["unix:/run/php/php#{php_version}-fpm.sock"]],
+    'fastcgi_pass'            => [['127.0.0.1:9000']],
     'fastcgi_index'           => [['index.php']],
     'fastcgi_split_path_info' => [['^(.+\\.php)(/.+)$']],
     # 'if'                      => [{
