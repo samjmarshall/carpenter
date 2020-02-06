@@ -96,7 +96,7 @@ if [ ! -f /etc/apt/sources.list.d/puppet6.list ]; then
 	wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb
 	dpkg -i puppet6-release-xenial.deb
 	apt-get update
-	apt-get install puppet-agent
+	apt-get install -y puppet-agent git
 	/opt/puppetlabs/puppet/bin/gem install r10k --no-document
 fi
 
@@ -111,7 +111,7 @@ SCRIPT{{end}}
 	config.vm.provision "shell", inline: "curl -sSL https://omnitruck.chef.io/install.sh | CI=true bash -s -- -P inspec"{{end}}
 
 	# Upgrade all system packages
-	config.vm.provision "shell", inline: "apt-get -y upgrade"
+	config.vm.provision "shell", inline: "apt upgrade -y"
 end
 `))
 

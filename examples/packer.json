@@ -64,12 +64,12 @@
       "rm -rf /var/lib/apt/lists/*",
       "apt-get clean",
       "apt-get update",
-      "apt-get -y upgrade",
+      "apt upgrade -y",
       "wget -q https://apt.puppetlabs.com/puppet6-release-xenial.deb",
       "dpkg -i puppet6-release-xenial.deb",
       "rm puppet6-release-xenial.deb",
       "apt-get update",
-      "apt-get -y install puppet-agent git",
+      "apt-get install -y puppet-agent git",
       "/opt/puppetlabs/puppet/bin/gem install r10k --no-document",
       "curl -sSL https://omnitruck.chef.io/install.sh | CI=true bash -s -- -P inspec"
     ]
@@ -98,7 +98,7 @@
     "type": "shell",
     "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
     "inline": [
-      "apt-get -y upgrade",
+      "apt upgrade -y",
       "inspec exec {{user `inspec_locations`}} --no-distinct-exit --no-create-lockfile --chef-license=accept-silent"
     ]
   },
@@ -108,7 +108,7 @@
     "inline": [
       "echo '=> Remove Puppet'",
       "rm -r /opt/puppetlabs /etc/puppetlabs",
-      "apt-get --purge -y remove puppet-agent puppet6-release git",
+      "apt-get remove --purge -y puppet-agent puppet6-release git",
 
       "echo '=> Remove InSpec'",
       "rm -r .inspec/",
@@ -116,7 +116,7 @@
       "rm -r /opt/inspec",
 
       "echo '=> Clean up apt-get'",
-      "apt-get -y autoremove",
+      "apt-get autoremove -y",
       "apt-get clean",
       "rm -r /var/cache/apt",
 
