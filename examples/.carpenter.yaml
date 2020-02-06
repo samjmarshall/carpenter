@@ -12,5 +12,5 @@ image:
       volume_size: 20
       # vpc_id:
     vagrant:
-      box: ubuntu/bionic64
+      box: ubuntu/xenial64
       memory: 2048
