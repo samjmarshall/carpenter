@@ -123,7 +123,7 @@
       "rm -r /var/lib/cloud/instances",
       "rm -r /var/lib/cloud/sem",
 
-      "echo '=> Remove SSH authorized keys'",
+      "echo '=> Remove SSH keys'",
       "rm /root/.ssh/authorized_keys",
       "rm /etc/ssh/ssh_host*",
 
@@ -132,7 +132,6 @@
       "rm /etc/machine-id",
       "touch /etc/machine-id",
       "rm -f /var/lib/dhcp/dhclient.*",
-      "rm /etc/resolv.conf",
 
       "echo '=> Delete temporary files'",
       "rm -r /tmp/*",
