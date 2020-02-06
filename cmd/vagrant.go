@@ -111,7 +111,7 @@ SCRIPT{{end}}
 	config.vm.provision "shell", inline: "curl -sSL https://omnitruck.chef.io/install.sh | CI=true bash -s -- -P inspec"{{end}}
 
 	# Upgrade all system packages
-	config.vm.provision "shell", inline: "apt upgrade -y"
+	config.vm.provision "shell", inline: "apt-get upgrade -y"
 end
 `))
 
