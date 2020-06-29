@@ -188,7 +188,7 @@ func (p *Packer) getSpotPrice() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%.6f", (f*5/100)+f) // Set spot price 5% above current market price.
+	return fmt.Sprintf("%.6f", (f*10/100)+f) // Set spot price 10% above current market price.
 }
 
 func handleAWSError(err error) {
