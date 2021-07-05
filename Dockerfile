@@ -1,7 +1,7 @@
 # Build stage
 FROM golang:1.16.5-alpine AS build
 WORKDIR /src
-ADD . /src
+COPY . /src
 RUN go build
 
 FROM hashicorp/packer:1.7.3 AS packer
