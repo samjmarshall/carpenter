@@ -1,11 +1,7 @@
 # IDE
 .DS_Store
 
-# Go
-go.sum
-
 # Carpenter
-vendor/
 carpenter
 
 # Vagrant files
