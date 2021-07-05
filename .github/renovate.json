@@ -4,5 +4,11 @@
   ],
   "extends": [
     "github>rokerlabs/renovate-config"
-  ]
+  ],
+  "packageRules": [{
+    "matchPackageNames": [
+      "hashicorp/packer"
+    ],
+    "automerge": false
+  }]
 }
