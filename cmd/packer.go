@@ -27,48 +27,51 @@ type Packer struct {
 
 // Configure Packer build properties
 func (p *Packer) Configure(imageName string) {
-	if os.Getenv("PACKER_BUILD_VERSION") == "" {
+	if os.Getenv("PKR_VAR_build_version") == "" {
 		p.AMIName = imageName
 	} else {
-		p.AMIName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PACKER_BUILD_VERSION"))
+		p.AMIName = fmt.Sprintf("%s-%s", imageName, os.Getenv("PKR_VAR_build_version"))
 	}
 
-	os.Setenv("PACKER_AMI_NAME", p.AMIName)
+	os.Setenv("PKR_VAR_ami_name", p.AMIName)
 
-	if os.Getenv("PACKER_AWS_REGION") == "" {
+	if os.Getenv("PKR_VAR_aws_region") == "" {
 		if os.Getenv("AWS_REGION") != "" {
-			os.Setenv("PACKER_AWS_REGION", os.Getenv("AWS_REGION"))
+			os.Setenv("PKR_VAR_aws_region", os.Getenv("AWS_REGION"))
 		} else {
-			os.Setenv("PACKER_AWS_REGION", viper.GetString("image.driver.packer.aws_region"))
+			os.Setenv("PKR_VAR_aws_region", viper.GetString("image.driver.packer.aws_region"))
 		}
 	}
 
 	if os.Getenv("PACKER_AWS_ACCESS_KEY_ID") == "" {
-		os.Setenv("PACKER_AWS_ACCESS_KEY_ID", os.Getenv("AWS_ACCESS_KEY_ID"))
-		os.Setenv("PACKER_AWS_SECRET_ACCESS_KEY", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+		os.Setenv("PKR_VAR_aws_access_key", os.Getenv("AWS_ACCESS_KEY_ID"))
+		os.Setenv("PKR_VAR_aws_secret_key", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+	} else {
+		os.Setenv("PKR_VAR_aws_access_key", os.Getenv("PACKER_AWS_ACCESS_KEY_ID"))
+		os.Setenv("PKR_VAR_aws_secret_key", os.Getenv("PACKER_AWS_SECRET_ACCESS_KEY"))
 	}
 
 	p.AwsConfig = &aws.Config{
-		Region:      aws.String(os.Getenv("PACKER_AWS_REGION")),
-		Credentials: credentials.NewStaticCredentials(os.Getenv("PACKER_AWS_ACCESS_KEY_ID"), os.Getenv("PACKER_AWS_SECRET_ACCESS_KEY"), ""),
+		Region:      aws.String(os.Getenv("PKR_VAR_aws_region")),
+		Credentials: credentials.NewStaticCredentials(os.Getenv("PKR_VAR_aws_access_key"), os.Getenv("PKR_VAR_aws_secret_key"), ""),
 	}
 
-	os.Setenv("PACKER_BUILD_NAME", p.AMIName)
+	os.Setenv("PKR_VAR_build_name", p.AMIName)
 
-	os.Setenv("PACKER_IMAGE_LAYERS", strings.Join(getLayers(p.AMIName), ","))
-	os.Setenv("PACKER_INSPEC_LOCATIONS", inspecLocations(p.AMIName))
+	os.Setenv("PKR_VAR_image_layers", strings.Join(getLayers(p.AMIName), ","))
+	os.Setenv("PKR_VAR_inspec_locations", inspecLocations(p.AMIName))
 
-	if os.Getenv("PACKER_INSTANCE_TYPE") == "" {
-		os.Setenv("PACKER_INSTANCE_TYPE", viper.GetString("image.driver.packer.instance_type"))
+	if os.Getenv("PKR_VAR_instance_type") == "" && viper.IsSet("image.driver.packer.instance_type") {
+		os.Setenv("PKR_VAR_instance_type", viper.GetString("image.driver.packer.instance_type"))
 	}
 
-	p.InstanceType = os.Getenv("PACKER_INSTANCE_TYPE")
+	p.InstanceType = os.Getenv("PKR_VAR_instance_type")
 
-	if os.Getenv("PACKER_SECURITY_GROUP_ID") == "" {
-		os.Setenv("PACKER_SECURITY_GROUP_ID", viper.GetString("image.driver.packer.security_group_id"))
+	if os.Getenv("PKR_VAR_security_group_id") == "" && viper.IsSet("image.driver.packer.security_group_id") {
+		os.Setenv("PKR_VAR_security_group_id", viper.GetString("image.driver.packer.security_group_id"))
 	}
 
-	if os.Getenv("PACKER_SOURCE_AMI") == "" {
+	if os.Getenv("PKR_VAR_source_ami") == "" {
 		if viper.IsSet("image.driver.packer.source_ami_filter") && viper.IsSet("image.driver.packer.source_ami_owner") {
 			var filters []*ec2.Filter
 
@@ -78,33 +81,33 @@ func (p *Packer) Configure(imageName string) {
 				os.Exit(1)
 			}
 
-			os.Setenv("PACKER_SOURCE_AMI", p.getLatestAMI(filters, viper.GetString("image.driver.packer.source_ami_owner")))
-		} else {
-			os.Setenv("PACKER_SOURCE_AMI", viper.GetString("image.driver.packer.source_ami"))
+			os.Setenv("PKR_VAR_source_ami", p.getLatestAMI(filters, viper.GetString("image.driver.packer.source_ami_owner")))
+		} else if viper.IsSet("image.driver.packer.source_ami") {
+			os.Setenv("PKR_VAR_source_ami", viper.GetString("image.driver.packer.source_ami"))
 		}
 	}
 
-	if os.Getenv("PACKER_SUBNET_ID") == "" {
-		os.Setenv("PACKER_SUBNET_ID", viper.GetString("image.driver.packer.subnet_id"))
+	if os.Getenv("PKR_VAR_subnet_id") == "" && viper.IsSet("image.driver.packer.subnet_id") {
+		os.Setenv("PKR_VAR_subnet_id", viper.GetString("image.driver.packer.subnet_id"))
 	}
 
-	p.SubnetID = os.Getenv("PACKER_SUBNET_ID")
+	p.SubnetID = os.Getenv("PKR_VAR_subnet_id")
 
-	if os.Getenv("PACKER_SPOT_PRICE") == "" {
+	if os.Getenv("PKR_VAR_spot_price") == "" {
 		if viper.IsSet("image.driver.packer.spot_price") {
-			os.Setenv("PACKER_SPOT_PRICE", viper.GetString("image.driver.packer.spot_price"))
+			os.Setenv("PKR_VAR_spot_price", viper.GetString("image.driver.packer.spot_price"))
 		} else {
 			spotPrice := p.getSpotPrice()
-			os.Setenv("PACKER_SPOT_PRICE", spotPrice)
+			os.Setenv("PKR_VAR_spot_price", spotPrice)
 		}
 	}
 
-	if os.Getenv("PACKER_VOLUME_SIZE") == "" {
-		os.Setenv("PACKER_VOLUME_SIZE", viper.GetString("image.driver.packer.volume_size"))
+	if os.Getenv("PKR_VAR_volume_size") == "" && viper.IsSet("image.driver.packer.volume_size") {
+		os.Setenv("PKR_VAR_volume_size", viper.GetString("image.driver.packer.volume_size"))
 	}
 
-	if os.Getenv("PACKER_VPC_ID") == "" {
-		os.Setenv("PACKER_VPC_ID", viper.GetString("image.driver.packer.vpc_id"))
+	if os.Getenv("PKR_VAR_vpc_id") == "" && viper.IsSet("image.driver.packer.vpc_id") {
+		os.Setenv("PKR_VAR_vpc_id", viper.GetString("image.driver.packer.vpc_id"))
 	}
 
 }
@@ -112,18 +115,19 @@ func (p *Packer) Configure(imageName string) {
 // Run Packer image build
 func (p *Packer) Run() {
 	log.WithFields(log.Fields{
-		"amiName":         os.Getenv("PACKER_AMI_NAME"),
-		"awsRegion":       os.Getenv("PACKER_AWS_REGION"),
-		"instanceType":    os.Getenv("PACKER_INSTANCE_TYPE"),
-		"securityGroupId": os.Getenv("PACKER_SECURITY_GROUP_ID"),
-		"sourceAmi":       os.Getenv("PACKER_SOURCE_AMI"),
-		"spotPrice":       os.Getenv("PACKER_SPOT_PRICE"),
-		"subnetId":        os.Getenv("PACKER_SUBNET_ID"),
-		"volumeSize":      os.Getenv("PACKER_VOLUME_SIZE"),
-		"vpcId":           os.Getenv("PACKER_VPC_ID"),
+		"amiName":         os.Getenv("PKR_VAR_ami_name"),
+		"awsRegion":       os.Getenv("PKR_VAR_aws_region"),
+		"instanceType":    os.Getenv("PKR_VAR_instance_type"),
+		"securityGroupId": os.Getenv("PKR_VAR_security_group_id"),
+		"sourceAmi":       os.Getenv("PKR_VAR_source_ami"),
+		"spotPrice":       os.Getenv("PKR_VAR_spot_price"),
+		"subnetId":        os.Getenv("PKR_VAR_subnet_id"),
+		"volumeSize":      os.Getenv("PKR_VAR_volume_size"),
+		"vpcId":           os.Getenv("PKR_VAR_vpc_id"),
 	}).Info("Packer build properties")
 
-	shell("packer", "build", "packer.json")
+	shell("packer", "init", ".")
+	shell("packer", "build", ".")
 }
 
 // Destroy up build artifacts
@@ -202,7 +206,7 @@ func (p *Packer) getSpotPrice() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%.6f", (f*10/100)+f) // Set spot price 10% above current market price.
+	return fmt.Sprintf("%.6f", (f*15/100)+f) // Set spot price 15% above current market price.
 }
 
 func (p *Packer) getLatestAMI(filters []*ec2.Filter, owner string) string {
