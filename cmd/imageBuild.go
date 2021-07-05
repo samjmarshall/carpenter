@@ -10,8 +10,6 @@ import (
 )
 
 type Facts struct {
-	AwsRegion   string   `yaml:"aws_region"`
-	ImageFormat string   `yaml:"image_format"`
 	ImageLayers []string `yaml:"image_layers"`
 }
 
@@ -59,8 +57,6 @@ func init() {
 
 func generatePuppetFacts(imageName string) error {
 	f := Facts{
-		AwsRegion:   "ap-southeast-2",
-		ImageFormat: "ami",
 		ImageLayers: getLayers(imageName),
 	}
 
