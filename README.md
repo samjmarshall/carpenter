@@ -8,7 +8,7 @@ Carpenter docker image [rokerlabs/carpenter](https://hub.docker.com/repository/d
 
 Dependencies of drivers, testers and provisioners that must be pre-installed.
 
-**Packer** `>= 1.4.0`
+**Packer** `>= 1.7.0`
 
 **Vagrant**
 
