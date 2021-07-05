@@ -6,6 +6,7 @@ imageRepo="${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}"
 
 if [ "${BUILDKITE}" == "true" ]; then
     echo "+++ :docker: Tag ${imageRepo}:beta => ${imageRepo}:latest"
+    docker pull ${imageRepo}:beta
     docker tag ${imageRepo}:beta ${imageRepo}:latest
     docker push ${imageRepo}:latest
 else
