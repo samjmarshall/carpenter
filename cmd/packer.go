@@ -3,8 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -67,7 +69,19 @@ func (p *Packer) Configure(imageName string) {
 	}
 
 	if os.Getenv("PACKER_SOURCE_AMI") == "" {
-		os.Setenv("PACKER_SOURCE_AMI", viper.GetString("image.driver.packer.source_ami"))
+		if viper.IsSet("image.driver.packer.source_ami_filter") && viper.IsSet("image.driver.packer.source_ami_owner") {
+			var filters []*ec2.Filter
+
+			err := viper.UnmarshalKey("image.driver.packer.source_ami_filter", &filters)
+			if err != nil {
+				log.Error("Unable to unmarshal source AMI filters")
+				os.Exit(1)
+			}
+
+			os.Setenv("PACKER_SOURCE_AMI", p.getLatestAMI(filters, viper.GetString("image.driver.packer.source_ami_owner")))
+		} else {
+			os.Setenv("PACKER_SOURCE_AMI", viper.GetString("image.driver.packer.source_ami"))
+		}
 	}
 
 	if os.Getenv("PACKER_SUBNET_ID") == "" {
@@ -152,7 +166,7 @@ func (p *Packer) Test() {
 }
 
 func (p *Packer) getSpotPrice() string {
-	svc := ec2.New(session.New(p.AwsConfig))
+	svc := ec2.New(session.Must(session.NewSession(p.AwsConfig)))
 
 	subnetsResult, err := svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
 		SubnetIds: []*string{&p.SubnetID},
@@ -189,6 +203,30 @@ func (p *Packer) getSpotPrice() string {
 	}
 
 	return fmt.Sprintf("%.6f", (f*10/100)+f) // Set spot price 10% above current market price.
+}
+
+func (p *Packer) getLatestAMI(filters []*ec2.Filter, owner string) string {
+	svc := ec2.New(session.Must(session.NewSession(p.AwsConfig)))
+	result, err := svc.DescribeImages(&ec2.DescribeImagesInput{
+		Filters: filters,
+		Owners:  []*string{aws.String(owner)},
+	})
+
+	if err != nil {
+		log.Error("Unable to perform operation 'ec2:DescribeImages'")
+		handleAWSError(err)
+		os.Exit(1)
+	}
+
+	if len(result.Images) > 1 {
+		sort.Slice(result.Images, func(i, j int) bool {
+			itime, _ := time.Parse(time.RFC3339, aws.StringValue(result.Images[i].CreationDate))
+			jtime, _ := time.Parse(time.RFC3339, aws.StringValue(result.Images[j].CreationDate))
+			return itime.Unix() > jtime.Unix()
+		})
+	}
+
+	return *result.Images[0].ImageId
 }
 
 func handleAWSError(err error) {

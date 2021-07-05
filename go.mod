@@ -1,11 +1,12 @@
 module github.com/rokerlabs/carpenter
 
-go 1.12
+go 1.16
 
 require (
-	github.com/aws/aws-sdk-go v1.20.1
-	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.3.2
-	gopkg.in/yaml.v2 v2.2.2
+	github.com/aws/aws-sdk-go v1.39.0
+	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/cobra v1.2.1
+	github.com/spf13/viper v1.8.1
+	golang.org/x/text v0.3.6 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
