@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/rokerlabs/carpenter/cmd"
+import "carpenter/cmd"
 
 func main() {
 	cmd.Execute()
