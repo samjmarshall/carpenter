@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.16.7-alpine AS build
+FROM golang:1.16.8-alpine AS build
 WORKDIR /src
 COPY . /src
 RUN go build
