@@ -4,7 +4,7 @@ WORKDIR /src
 COPY . /src
 RUN go build
 
-FROM hashicorp/packer:1.8.3 AS packer
+FROM hashicorp/packer:1.11.2 AS packer
 
 # Final stage
 FROM alpine
